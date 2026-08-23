@@ -20,7 +20,7 @@ python -m src.cli plan --windy
 python -m src.cli interpret "Saved the Boone bulletin, kept grassed waterway, sprayed at 7am under 6 mph"
 
 uvicorn src.api:app --reload --port 8000
-# http://127.0.0.1:8000
+# http://127.0.0.1:8000 — first visit auto-starts a guided tour (desktop); “Take the tour” anytime
 ```
 
 ## Honesty split

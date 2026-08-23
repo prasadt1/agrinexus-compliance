@@ -6,19 +6,27 @@
   <title>Application Record — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.css" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/tour-theme.css" />
 </head>
-<body>
+<body data-tour-page="receipt" data-tour-auto="false">
   <header class="top">
-    <p class="brand">AgriNexus Compliance</p>
-    <nav aria-label="Demo steps">
-      <ol class="steps">
-        <li><a href="/">1. Check</a></li>
-        <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
-        <li><a class="active" href="/receipt.html">3. Record</a></li>
-      </ol>
-    </nav>
+    <div class="brand-wrap">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <p class="brand">AgriNexus <span>Compliance</span></p>
+    </div>
+    <div class="top-actions">
+      <nav aria-label="Demo steps">
+        <ol class="steps">
+          <li><a href="/">1. Check</a></li>
+          <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
+          <li><a class="active" href="/receipt.html">3. Record</a></li>
+        </ol>
+      </nav>
+      <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
+    </div>
   </header>
 
   <p class="disclaimer">
@@ -32,18 +40,18 @@
     </div>
 
     <div id="main-flow" hidden>
-      <h1>Application record</h1>
+      <h1 class="page-title">Application record</h1>
       <p class="lede">
         A dated summary of the plan, weather and points check, reminders, and applicator confirmation —
         ready to download for educational review.
       </p>
 
-      <div id="verdict" class="verdict" data-kind="ok">
+      <div id="verdict" class="verdict" data-kind="ok" data-tour="receipt-verdict">
         <h2 id="verdict-title"></h2>
         <p id="verdict-body"></p>
       </div>
 
-      <div class="actions">
+      <div class="actions" data-tour="download-pdf">
         <a id="dl-pdf" class="button" href="#">Download PDF Record</a>
         <a id="dl-json" class="button ghost" href="#">Technical export (JSON)</a>
       </div>
@@ -94,7 +102,7 @@
         <p id="conf-raw" hidden></p>
       </div>
 
-      <div class="record-block">
+      <div class="record-block" data-tour="receipt-timeline">
         <h2>Activity timeline</h2>
         <ul class="timeline" id="timeline"></ul>
       </div>
@@ -122,7 +130,9 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
   <script src="/app.js"></script>
+  <script src="/tour.js"></script>
   <script>
     const caseId = resolveCaseId();
     const gate = document.getElementById("gate");
@@ -154,9 +164,9 @@
 
           const kind =
             data.status === "CONFIRMED" ? "ok" :
-            data.status === "NUDGED" || (conf && conf.needs_human) ? "warn" : "idle";
+            data.status === "NUDGED" || (conf && conf.needs_human) ? "warn" : "ok";
           const verdict = document.getElementById("verdict");
-          verdict.dataset.kind = kind === "idle" ? "ok" : kind;
+          verdict.dataset.kind = kind;
           document.getElementById("verdict-title").textContent = statusLabel(data.status);
           document.getElementById("verdict-body").textContent =
             data.status === "CONFIRMED"

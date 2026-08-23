@@ -6,19 +6,29 @@
   <title>Check Application — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.css" />
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/tour-theme.css" />
 </head>
-<body>
+<body data-tour-page="check">
   <header class="top">
-    <p class="brand">AgriNexus Compliance</p>
-    <nav aria-label="Demo steps">
-      <ol class="steps">
-        <li><a class="active" href="/">1. Check</a></li>
-        <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
-        <li><a id="nav-receipt" href="/receipt.html">3. Record</a></li>
-      </ol>
-    </nav>
+    <div class="brand-wrap">
+      <div class="brand-mark" aria-hidden="true">A</div>
+      <p class="brand">AgriNexus <span>Compliance</span></p>
+    </div>
+    <div class="top-actions">
+      <nav aria-label="Demo steps" data-tour="steps">
+        <ol class="steps">
+          <li><a class="active" href="/">1. Check</a></li>
+          <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
+          <li><a id="nav-receipt" href="/receipt.html">3. Record</a></li>
+        </ol>
+      </nav>
+      <button type="button" class="btn-tour" data-tour-trigger>
+        Take the tour
+      </button>
+    </div>
   </header>
 
   <p class="disclaimer">
@@ -26,16 +36,28 @@
   </p>
 
   <main class="layout">
-    <h1>Check this application before spraying</h1>
-    <p class="lede">
-      See whether this field meets mitigation-point requirements, whether weather
-      permits application, and which bulletin steps to complete first.
-    </p>
+    <section class="welcome" data-tour="welcome">
+      <p class="eyebrow">U.S. ESA label demo</p>
+      <h1>Check this application before spraying</h1>
+      <p class="lede">
+        See whether this field meets mitigation-point requirements, whether weather
+        permits application, and which bulletin steps to complete first.
+      </p>
+      <p class="bridge" data-tour="bridge">
+        <strong>Same closed loop as Outturn / AgriNexus</strong> — plan, remind, confirm,
+        record — applied to 2026 U.S. pesticide-<em>label</em> mitigation (Bulletins Live! Two,
+        runoff points, spray-drift rules).
+      </p>
+      <div class="actions">
+        <button type="button" class="button" data-tour-trigger>Take a 90-second tour</button>
+        <button type="button" class="button ghost" id="scroll-to-check">Start with this example</button>
+      </div>
+    </section>
 
-    <dl class="summary-grid">
+    <dl class="summary-grid" data-tour="summary" id="demo-pack">
       <div>
         <dt>Field</dt>
-        <dd>Boone County, Iowa (Iowa State ICM Table 1 example)</dd>
+        <dd>Boone County, Iowa (Iowa State ICM Table 1)</dd>
       </div>
       <div>
         <dt>Product</dt>
@@ -46,18 +68,28 @@
         <dd translate="no">7969-500</dd>
       </div>
       <div>
-        <dt>Existing mitigation</dt>
-        <dd>Runoff-vulnerability relief · Non-irrigated · Grassed waterway · Recordkeeping</dd>
+        <dt>Bulletin</dt>
+        <dd>August 2026 · no extra PULA in map view</dd>
       </div>
     </dl>
+
+    <div class="split-explain" data-tour="honesty-preview">
+      <article class="explain calc">
+        <h3>Calculated from published rules</h3>
+        <p>Mitigation points and weather limits come from the label and EPA menu — not from AI.</p>
+      </article>
+      <article class="explain ai">
+        <h3>AI-assisted (optional)</h3>
+        <p>Reading label/bulletin language and free-text confirmation. Offline demo works without AWS.</p>
+      </article>
+    </div>
 
     <form id="plan-form" class="form">
       <label>
         Planned spray date
         <input type="date" id="spray-date" name="planned_spray_date" autocomplete="off" />
       </label>
-
-      <div class="actions">
+      <div class="actions" data-tour="check-cta">
         <button type="submit" id="btn-plan" data-busy-label="Checking…">Check Application Plan</button>
       </div>
     </form>
@@ -66,7 +98,7 @@
     <p id="live" class="live" aria-live="polite"></p>
 
     <section id="result" hidden>
-      <div id="verdict" class="verdict" data-kind="ok">
+      <div id="verdict" class="verdict" data-kind="ok" data-tour="verdict">
         <h2 id="verdict-title"></h2>
         <p id="verdict-body"></p>
       </div>
@@ -102,15 +134,11 @@
       <div class="split-explain">
         <article class="explain calc">
           <h3>Calculated from published rules</h3>
-          <p id="calc-copy">
-            Point totals and weather limits come from the label fixture and mitigation menu — not from AI.
-          </p>
+          <p id="calc-copy"></p>
         </article>
         <article class="explain ai">
           <h3>AI-assisted (when enabled)</h3>
-          <p id="ai-copy">
-            Offline demo: no model summary. Enable AI in Presenter Controls only if Bedrock access is configured.
-          </p>
+          <p id="ai-copy"></p>
         </article>
       </div>
 
@@ -140,21 +168,23 @@
         <details class="panel" style="margin-top:0.75rem">
           <summary>About this demo / fixture provenance</summary>
           <p class="muted">
-            Mitigation menu / Boone Table 1 points aligned to Iowa State ICM (11 Mar 2026) +
-            <a href="https://www.epa.gov/endangered-species/mitigation-menu">EPA Mitigation Menu</a>;
-            <code>retrieved_approx</code> <strong>2026-08-23</strong>.
-            Label: Liberty ULTRA / EPA Reg. No. <span translate="no">7969-500</span>
-            (EPA PPLS PDF in <code>fixtures/labels/sources/</code>).
-            Real Bulletins Live! Two Printable Bulletin for Boone coords + August 2026 is in
-            <code>fixtures/bulletins/</code> (no extra PULA limits in that map view; label still controls).
+            Liberty ULTRA / <span translate="no">7969-500</span>, Boone Table 1 points,
+            August 2026 BLT printable in <code>fixtures/</code>. See README for URLs and dates.
           </p>
         </details>
       </details>
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
   <script src="/app.js"></script>
+  <script src="/tour.js"></script>
   <script>
+    document.getElementById("scroll-to-check").addEventListener("click", function () {
+      document.getElementById("demo-pack").scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("btn-plan").focus();
+    });
+
     function syncNav() {
       const id = getCaseId();
       const c = document.getElementById("nav-confirm");
@@ -206,7 +236,7 @@
         const wx = plan.weather || {};
         let body = "";
         if (plan.status === "APPLY_OK") {
-          body = "Documented mitigation meets the required points, and weather is within the demo label limits.";
+          body = "Documented mitigation meets the required points, and weather is within the label limits.";
         } else if (plan.status === "WEATHER_BLOCK") {
           body = (wx.weather_block_reasons || []).join(" ") || "Weather conditions do not allow application right now.";
         } else {
