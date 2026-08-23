@@ -1,0 +1,15 @@
+{
+  "fixture_id": "blt-boone-ia-demo-2026-04",
+  "county": "Boone",
+  "state": "IA",
+  "application_month": "2026-04",
+  "epa_reg_no": "DEMO-000001",
+  "pula_active": false,
+  "pula_notes": "STUB — for demo county/product combo, no extra PULA limits. Replace with real Bulletins Live! Two printable text/PDF.",
+  "actions": [
+    "Confirm field location against Bulletins Live! Two map for application month.",
+    "Print and retain bulletin with spray records.",
+    "If map shows pink/PULA shading for this product, follow bulletin limits before applying."
+  ],
+  "source": "Manual fixture — user must download from https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins"
+}

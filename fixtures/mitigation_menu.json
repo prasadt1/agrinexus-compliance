@@ -1,0 +1,70 @@
+{
+  "retrieved_note": "EDUCATIONAL STUB — point values are illustrative, modeled on public EPA Mitigation Menu / extension examples (e.g. Iowa State ICM Mar 2026). Replace with values from https://www.epa.gov/endangered-species/mitigation-menu and record retrieval date before any real use.",
+  "source_urls": [
+    "https://www.epa.gov/endangered-species/mitigation-menu",
+    "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements"
+  ],
+  "retrieved_approx": "2026-08-16",
+  "practices": [
+    {
+      "id": "mitigation_tracking",
+      "name": "Mitigation tracking / recordkeeping",
+      "points": 1,
+      "category": "general"
+    },
+    {
+      "id": "non_irrigated",
+      "name": "Non-irrigated field",
+      "points": 3,
+      "category": "field"
+    },
+    {
+      "id": "grassed_waterway",
+      "name": "Grassed waterway",
+      "points": 2,
+      "category": "in_field"
+    },
+    {
+      "id": "cover_crop",
+      "name": "Cover cropping",
+      "points": 2,
+      "category": "in_field"
+    },
+    {
+      "id": "conservation_tillage",
+      "name": "Conservation tillage",
+      "points": 2,
+      "category": "in_field"
+    },
+    {
+      "id": "contour_farming",
+      "name": "Contour farming",
+      "points": 1,
+      "category": "in_field"
+    },
+    {
+      "id": "vegetative_filter_strip",
+      "name": "Vegetative filter strip",
+      "points": 2,
+      "category": "field_adjacent"
+    },
+    {
+      "id": "drift_reduction_nozzles",
+      "name": "Drift-reduction nozzles / spray quality",
+      "points": 1,
+      "category": "application"
+    },
+    {
+      "id": "reduced_boom_height",
+      "name": "Reduced boom height per label",
+      "points": 1,
+      "category": "application"
+    },
+    {
+      "id": "multi_category_bonus",
+      "name": "Using mitigation measures from multiple categories",
+      "points": 1,
+      "category": "bonus"
+    }
+  ]
+}

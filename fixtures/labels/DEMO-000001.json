@@ -1,0 +1,11 @@
+{
+  "epa_reg_no": "DEMO-000001",
+  "product_name": "Demo Herbicide (educational stub)",
+  "required_runoff_points": 3,
+  "pula_extra_points": 0,
+  "requires_bulletins_live_two": true,
+  "max_wind_mph": 10,
+  "no_rain_hours_before": 1,
+  "excerpt_markdown_path": "fixtures/labels/DEMO-000001.md",
+  "disclaimer": "STUB. Not a real EPA Reg. No. Replace with a real label excerpt and Reg. No. from a product you are evaluating. Point thresholds vary by product — verify on the label."
+}

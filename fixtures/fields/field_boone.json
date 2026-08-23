@@ -1,0 +1,15 @@
+{
+  "field_id": "boone-ia-demo-01",
+  "name": "Demo field — Boone County, IA",
+  "state": "IA",
+  "county": "Boone",
+  "lat": 42.0667,
+  "lon": -93.8802,
+  "irrigated": false,
+  "practices": [
+    "non_irrigated",
+    "grassed_waterway",
+    "mitigation_tracking"
+  ],
+  "notes": "Mirrors the style of Iowa State ICM public examples. Replace with a real partner field before pilot."
+}

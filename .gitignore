@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.env
+*.pdf
+!fixtures/bulletins/.gitkeep
+.DS_Store
+out/
