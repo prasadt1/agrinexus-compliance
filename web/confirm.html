@@ -3,117 +3,198 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AgriNexus Compliance — Confirm</title>
+  <title>Confirm Completion — AgriNexus Compliance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header class="top">
     <p class="brand">AgriNexus Compliance</p>
-    <nav>
-      <a href="/">Plan</a>
-      <a class="active" href="/confirm.html">Confirm</a>
-      <a href="/receipt.html">Receipt</a>
+    <nav aria-label="Demo steps">
+      <ol class="steps">
+        <li><a href="/">1. Check</a></li>
+        <li><a class="active" href="/confirm.html">2. Confirm</a></li>
+        <li><a id="nav-receipt" href="/receipt.html">3. Record</a></li>
+      </ol>
     </nav>
   </header>
 
   <p class="disclaimer">
     Decision-support / education demo. Not legal advice. The product label controls.
-    Confirmation is free-text (or Bedrock) — not a keyword “DONE” button.
+    Describe what you completed in your own words — not a one-click “done.”
   </p>
 
   <main class="layout">
-    <section>
-      <h1>Confirm</h1>
-      <p class="lede">Case loop: plan → remind → interpret what was done → receipt.</p>
+    <div id="gate" class="gate-empty" hidden>
+      <p>No application plan is loaded yet. Start with a plan check first.</p>
+      <a class="button" href="/">Check Application Plan</a>
+    </div>
 
-      <label>
-        Case ID
-        <input type="text" id="case-id" placeholder="from Plan screen" />
-      </label>
+    <div id="main-flow" hidden>
+      <h1>Confirm what you completed</h1>
+      <p class="lede">
+        Tell us whether you saved the bulletin, kept mitigation practices in place,
+        and applied within the planned conditions. The system interprets your reply —
+        it does not rely on keyword matching alone.
+      </p>
 
-      <div class="actions row">
-        <button type="button" id="btn-load">Load case</button>
-        <button type="button" id="btn-nudge-24" class="secondary">Simulate T+24 reminder</button>
-        <button type="button" id="btn-nudge-48" class="secondary">Simulate T+48 reminder</button>
+      <div class="record-block">
+        <h2>This application <span id="status-pill" class="pill idle"></span></h2>
+        <dl class="summary-grid" style="margin:0;padding:0;border:none;background:transparent">
+          <div>
+            <dt>Field</dt>
+            <dd id="sum-field">—</dd>
+          </div>
+          <div>
+            <dt>Product</dt>
+            <dd id="sum-product">—</dd>
+          </div>
+          <div>
+            <dt>Plan result</dt>
+            <dd id="sum-plan">—</dd>
+          </div>
+          <div>
+            <dt>Planned spray date</dt>
+            <dd id="sum-date">—</dd>
+          </div>
+        </dl>
       </div>
 
-      <div id="case-summary" class="box det" hidden>
-        <h3>Case status</h3>
-        <pre id="case-out"></pre>
+      <div class="record-block">
+        <h2>Activity</h2>
+        <ul class="timeline" id="timeline"></ul>
       </div>
 
       <form id="confirm-form" class="form">
         <label>
-          What did you do? (free text)
-          <textarea id="reply" rows="5" placeholder="Printed Boone bulletin, kept grassed waterway, sprayed at 7am under 8 mph wind."></textarea>
+          What did you complete?
+          <textarea
+            id="reply"
+            name="confirmation"
+            rows="5"
+            autocomplete="off"
+            placeholder="Example: I saved the Boone bulletin, kept the grassed waterway, and sprayed at 7 AM when wind was about 6 mph…"
+          ></textarea>
         </label>
-        <label class="check">
-          <input type="checkbox" id="bedrock" />
-          Interpret with Bedrock (optional — needs AWS model access; leave unchecked for offline demo)
-        </label>
-        <button type="submit">Submit confirmation</button>
+        <div class="actions">
+          <button type="submit" id="btn-confirm" data-busy-label="Reviewing…">
+            Review My Confirmation
+          </button>
+        </div>
       </form>
 
-      <div id="error" class="error" hidden></div>
+      <div id="error" class="error" role="alert" hidden></div>
+      <p id="live" class="live" aria-live="polite"></p>
 
-      <div id="interp" class="box model" hidden>
-        <h3>Model interpretation</h3>
-        <pre id="interp-out"></pre>
-        <p class="actions">
-          <a id="to-receipt" class="button" href="/receipt.html">View receipt →</a>
-        </p>
-      </div>
+      <section id="interp" hidden>
+        <div id="interp-verdict" class="verdict" data-kind="ok">
+          <h2 id="interp-title"></h2>
+          <p id="interp-body"></p>
+        </div>
+        <div class="split-explain">
+          <article class="explain calc">
+            <h3>Calculated from published rules</h3>
+            <p>Case status and reminder timing are tracked by the system rules — not invented by the model.</p>
+          </article>
+          <article class="explain ai">
+            <h3>AI-assisted interpretation</h3>
+            <p id="interp-ai">—</p>
+          </article>
+        </div>
+        <div class="actions">
+          <a id="to-receipt" class="button" href="/receipt.html">View Application Record →</a>
+        </div>
+      </section>
+    </div>
+
+    <section class="presenter">
+      <details class="panel">
+        <summary>Presenter controls</summary>
+        <p class="muted">Simulate the follow-up loop without waiting a day. Use during demos.</p>
+        <div class="actions">
+          <button type="button" class="secondary" id="btn-nudge-24">Simulate day-1 reminder</button>
+          <button type="button" class="secondary" id="btn-nudge-48">Simulate day-2 reminder</button>
+        </div>
+        <label class="check" style="margin-top:0.85rem">
+          <input type="checkbox" id="bedrock" />
+          Interpret with Bedrock (needs AWS model access; leave unchecked for offline demo)
+        </label>
+        <details class="panel" style="margin-top:0.75rem">
+          <summary>Technical case ID</summary>
+          <p class="muted" translate="no" id="tech-case-id">—</p>
+        </details>
+      </details>
     </section>
   </main>
 
   <script src="/app.js"></script>
   <script>
-    const caseInput = document.getElementById("case-id");
-    caseInput.value = getCaseId() || new URLSearchParams(location.search).get("case_id") || "";
+    const caseId = resolveCaseId();
+    const gate = document.getElementById("gate");
+    const main = document.getElementById("main-flow");
+
+    function pillClass(status) {
+      if (status === "CONFIRMED") return "ok";
+      if (status === "NUDGED") return "warn";
+      if (status === "BLOCKED" || status === "EXPIRED") return "block";
+      return "idle";
+    }
 
     async function refreshCase() {
-      const id = caseInput.value.trim();
-      if (!id) throw new Error("Enter a case ID");
-      setCaseId(id);
-      const data = await api("/api/cases/" + encodeURIComponent(id));
-      document.getElementById("case-summary").hidden = false;
-      document.getElementById("case-out").textContent = JSON.stringify(
-        {
-          case_id: data.case_id,
-          status: data.status,
-          events: data.events,
-        },
-        null,
-        2
-      );
+      if (!caseId) return null;
+      const data = await api("/api/cases/" + encodeURIComponent(caseId));
+      const plan = data.plan || {};
+      const field = plan.field || {};
+      const product = plan.product || {};
+
+      document.getElementById("sum-field").textContent =
+        `${field.field_id || "—"} · ${field.county || ""}, ${field.state || ""}`.replace(/ · ,/, "");
+      document.getElementById("sum-product").textContent =
+        `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
+      document.getElementById("sum-plan").textContent = statusLabel(plan.status);
+      document.getElementById("sum-date").textContent = data.planned_spray_date || "Not set";
+
+      const pill = document.getElementById("status-pill");
+      pill.textContent = statusLabel(data.status);
+      pill.className = "pill " + pillClass(data.status);
+
+      renderTimeline(document.getElementById("timeline"), data.events);
+      document.getElementById("tech-case-id").textContent = data.case_id;
+      document.getElementById("nav-receipt").href =
+        "/receipt.html?case_id=" + encodeURIComponent(data.case_id);
+      document.getElementById("to-receipt").href =
+        "/receipt.html?case_id=" + encodeURIComponent(data.case_id);
       return data;
     }
 
-    document.getElementById("btn-load").addEventListener("click", async () => {
-      const err = document.getElementById("error");
-      err.hidden = true;
-      try {
-        await refreshCase();
-      } catch (ex) {
-        err.hidden = false;
-        err.textContent = String(ex.message || ex);
-      }
-    });
+    if (!caseId) {
+      gate.hidden = false;
+      main.hidden = true;
+    } else {
+      gate.hidden = true;
+      main.hidden = false;
+      refreshCase().catch((ex) => {
+        gate.hidden = false;
+        main.hidden = true;
+        gate.querySelector("p").textContent =
+          "Could not load this application: " + String(ex.message || ex);
+      });
+    }
 
     async function nudge(which) {
       const err = document.getElementById("error");
-      err.hidden = true;
+      showError(err, "");
       try {
-        const id = caseInput.value.trim();
-        if (!id) throw new Error("Enter a case ID");
-        await api("/api/cases/" + encodeURIComponent(id) + "/nudge", {
+        await api("/api/cases/" + encodeURIComponent(caseId) + "/nudge", {
           method: "POST",
           body: JSON.stringify({ which }),
         });
         await refreshCase();
+        document.getElementById("live").textContent = "Reminder simulated: " + which;
       } catch (ex) {
-        err.hidden = false;
-        err.textContent = String(ex.message || ex);
+        showError(err, String(ex.message || ex));
       }
     }
 
@@ -123,41 +204,50 @@
     document.getElementById("confirm-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const err = document.getElementById("error");
-      err.hidden = true;
+      const btn = document.getElementById("btn-confirm");
+      const live = document.getElementById("live");
+      showError(err, "");
+      const text = document.getElementById("reply").value.trim();
+      if (!text) {
+        showError(err, "Describe what you completed before submitting.");
+        return;
+      }
+      setBusy(btn, true);
       try {
-        const id = caseInput.value.trim();
-        if (!id) throw new Error("Enter a case ID");
-        const text = document.getElementById("reply").value.trim();
-        if (!text) throw new Error("Enter free-text confirmation");
-        const data = await api("/api/cases/" + encodeURIComponent(id) + "/confirm", {
+        const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/confirm", {
           method: "POST",
           body: JSON.stringify({
             text,
             bedrock: document.getElementById("bedrock").checked,
           }),
         });
-        document.getElementById("interp").hidden = false;
-        document.getElementById("interp-out").textContent = JSON.stringify(
-          {
-            status: data.status,
-            confirmation: data.confirmation,
-            events: data.events,
-          },
-          null,
-          2
-        );
-        document.getElementById("to-receipt").href =
-          "/receipt.html?case_id=" + encodeURIComponent(id);
         await refreshCase();
+        const conf = data.confirmation || {};
+        const section = document.getElementById("interp");
+        section.hidden = false;
+        const needs = !!conf.needs_human;
+        const verdict = document.getElementById("interp-verdict");
+        verdict.dataset.kind = needs ? "warn" : "ok";
+        document.getElementById("interp-title").textContent = needs
+          ? "Needs human review"
+          : statusLabel(data.status);
+        document.getElementById("interp-body").textContent =
+          conf.summary ||
+          (needs
+            ? "The reply was too thin or unclear. Ask the applicator for more detail."
+            : "Confirmation captured for the application record.");
+        document.getElementById("interp-ai").textContent =
+          `Layer: ${conf.layer || "—"}. Bulletin saved: ${conf.bulletin_saved ?? "unclear"}. ` +
+          `Applied: ${conf.applied ?? "unclear"}. Confidence: ${conf.confidence ?? "—"}.`;
+        live.textContent = document.getElementById("interp-title").textContent;
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (ex) {
-        err.hidden = false;
-        err.textContent = String(ex.message || ex);
+        showError(err, String(ex.message || ex));
+        live.textContent = "Confirmation failed";
+      } finally {
+        setBusy(btn, false);
       }
     });
-
-    if (caseInput.value) {
-      refreshCase().catch(() => {});
-    }
   </script>
 </body>
 </html>

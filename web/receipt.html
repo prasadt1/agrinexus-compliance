@@ -3,102 +3,228 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AgriNexus Compliance — Receipt</title>
+  <title>Application Record — AgriNexus Compliance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
   <header class="top">
     <p class="brand">AgriNexus Compliance</p>
-    <nav>
-      <a href="/">Plan</a>
-      <a href="/confirm.html">Confirm</a>
-      <a class="active" href="/receipt.html">Receipt</a>
+    <nav aria-label="Demo steps">
+      <ol class="steps">
+        <li><a href="/">1. Check</a></li>
+        <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
+        <li><a class="active" href="/receipt.html">3. Record</a></li>
+      </ol>
     </nav>
   </header>
 
   <p class="disclaimer">
     Decision-support / education demo. Not legal advice. The product label controls.
-    Receipt includes simulated reminder events when you used Simulate T+24 / T+48.
   </p>
 
   <main class="layout">
-    <section>
-      <h1>Receipt</h1>
-      <label>
-        Case ID
-        <input type="text" id="case-id" />
-      </label>
-      <div class="actions row">
-        <button type="button" id="btn-load">Load receipt JSON</button>
-        <a id="dl-pdf" class="button secondary" href="#">Download PDF</a>
-        <a id="dl-json" class="button secondary" href="#">Download JSON</a>
+    <div id="gate" class="gate-empty" hidden>
+      <p>No application record is available yet. Start with a plan check.</p>
+      <a class="button" href="/">Check Application Plan</a>
+    </div>
+
+    <div id="main-flow" hidden>
+      <h1>Application record</h1>
+      <p class="lede">
+        A dated summary of the plan, weather and points check, reminders, and applicator confirmation —
+        ready to download for educational review.
+      </p>
+
+      <div id="verdict" class="verdict" data-kind="ok">
+        <h2 id="verdict-title"></h2>
+        <p id="verdict-body"></p>
       </div>
 
-      <div id="error" class="error" hidden></div>
+      <div class="actions">
+        <a id="dl-pdf" class="button" href="#">Download PDF Record</a>
+        <a id="dl-json" class="button ghost" href="#">Technical export (JSON)</a>
+      </div>
 
-      <div class="split" id="panels" hidden>
-        <article class="box det">
-          <h3>Deterministic on receipt</h3>
-          <pre id="det-out"></pre>
+      <div id="error" class="error" role="alert" hidden></div>
+      <p id="live" class="live" aria-live="polite"></p>
+
+      <div class="metric-row">
+        <div class="metric">
+          <span class="label">Mitigation points</span>
+          <span class="value" id="pts-value">—</span>
+          <span class="sub" id="pts-sub"></span>
+        </div>
+        <div class="metric">
+          <span class="label">Weather at plan</span>
+          <span class="value" id="wx-value">—</span>
+          <span class="sub" id="wx-sub"></span>
+        </div>
+        <div class="metric">
+          <span class="label">Reminders</span>
+          <span class="value" id="rem-value" style="font-size:1.1rem">—</span>
+          <span class="sub" id="rem-sub"></span>
+        </div>
+      </div>
+
+      <dl class="summary-grid">
+        <div>
+          <dt>Field</dt>
+          <dd id="sum-field">—</dd>
+        </div>
+        <div>
+          <dt>Product</dt>
+          <dd id="sum-product">—</dd>
+        </div>
+        <div>
+          <dt>Planned spray date</dt>
+          <dd id="sum-date">—</dd>
+        </div>
+        <div>
+          <dt>Record generated</dt>
+          <dd id="sum-gen">—</dd>
+        </div>
+      </dl>
+
+      <div class="record-block">
+        <h2>Confirmation</h2>
+        <p id="conf-summary" class="muted">No confirmation yet.</p>
+        <p id="conf-raw" hidden></p>
+      </div>
+
+      <div class="record-block">
+        <h2>Activity timeline</h2>
+        <ul class="timeline" id="timeline"></ul>
+      </div>
+
+      <div class="split-explain">
+        <article class="explain calc">
+          <h3>Calculated from published rules</h3>
+          <p id="calc-copy">Point arithmetic and weather gate.</p>
         </article>
-        <article class="box model">
-          <h3>Model + events (incl. reminders)</h3>
-          <pre id="model-out"></pre>
+        <article class="explain ai">
+          <h3>AI-assisted</h3>
+          <p id="ai-copy">Interpretation layer when used.</p>
         </article>
       </div>
-    </section>
+
+      <div class="record-block">
+        <h2>Fixture citations</h2>
+        <ul class="list-plain" id="cite-list"></ul>
+      </div>
+
+      <details class="panel">
+        <summary>Technical details</summary>
+        <pre class="tech-pre" id="tech-out"></pre>
+      </details>
+    </div>
   </main>
 
   <script src="/app.js"></script>
   <script>
-    const caseInput = document.getElementById("case-id");
-    caseInput.value = getCaseId() || new URLSearchParams(location.search).get("case_id") || "";
+    const caseId = resolveCaseId();
+    const gate = document.getElementById("gate");
+    const main = document.getElementById("main-flow");
 
-    function wireDownloads(id) {
-      document.getElementById("dl-pdf").href = "/api/cases/" + encodeURIComponent(id) + "/receipt.pdf";
-      document.getElementById("dl-json").href = "/api/cases/" + encodeURIComponent(id) + "/receipt.json";
-    }
+    if (!caseId) {
+      gate.hidden = false;
+      main.hidden = true;
+    } else {
+      gate.hidden = true;
+      main.hidden = false;
+      document.getElementById("nav-confirm").href =
+        "/confirm.html?case_id=" + encodeURIComponent(caseId);
+      document.getElementById("dl-pdf").href =
+        "/api/cases/" + encodeURIComponent(caseId) + "/receipt.pdf";
+      document.getElementById("dl-json").href =
+        "/api/cases/" + encodeURIComponent(caseId) + "/receipt.json";
 
-    document.getElementById("btn-load").addEventListener("click", async () => {
-      const err = document.getElementById("error");
-      err.hidden = true;
-      try {
-        const id = caseInput.value.trim();
-        if (!id) throw new Error("Enter a case ID");
-        setCaseId(id);
-        wireDownloads(id);
-        const data = await api("/api/cases/" + encodeURIComponent(id) + "/receipt");
-        document.getElementById("panels").hidden = false;
-        document.getElementById("det-out").textContent = JSON.stringify(
-          {
-            status: data.status,
-            points: data.points,
-            weather: data.weather,
-            honesty_split: data.honesty_split,
-          },
-          null,
-          2
-        );
-        document.getElementById("model-out").textContent = JSON.stringify(
-          {
-            confirmation: data.confirmation,
-            reminder_events: data.reminder_events,
-            events: data.events,
-            model: data.model,
-            citations: data.citations,
-          },
-          null,
-          2
-        );
-      } catch (ex) {
-        err.hidden = false;
-        err.textContent = String(ex.message || ex);
-      }
-    });
+      (async () => {
+        const err = document.getElementById("error");
+        const live = document.getElementById("live");
+        try {
+          const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/receipt");
+          const field = data.field || {};
+          const product = data.product || {};
+          const points = data.points || {};
+          const weather = data.weather || {};
+          const conf = data.confirmation;
 
-    if (caseInput.value) {
-      wireDownloads(caseInput.value.trim());
-      document.getElementById("btn-load").click();
+          const kind =
+            data.status === "CONFIRMED" ? "ok" :
+            data.status === "NUDGED" || (conf && conf.needs_human) ? "warn" : "idle";
+          const verdict = document.getElementById("verdict");
+          verdict.dataset.kind = kind === "idle" ? "ok" : kind;
+          document.getElementById("verdict-title").textContent = statusLabel(data.status);
+          document.getElementById("verdict-body").textContent =
+            data.status === "CONFIRMED"
+              ? "This educational record includes the plan check, any reminders, and the applicator confirmation."
+              : data.status === "NUDGED"
+                ? "A reminder was sent; confirmation is still outstanding or needs more detail."
+                : "Plan is on file. Complete confirmation to close the loop.";
+
+          document.getElementById("pts-value").textContent =
+            `${points.earned_points ?? "—"} / ${points.required_points ?? "—"}`;
+          document.getElementById("pts-sub").textContent =
+            points.shortfall > 0 ? `Short by ${points.shortfall}` : "Requirement met at plan time";
+
+          document.getElementById("wx-value").textContent = weather.weather_ok ? "OK" : "Blocked";
+          document.getElementById("wx-sub").textContent =
+            `Wind ${weather.wind_mph ?? "—"} mph`;
+
+          const rems = data.reminder_events || [];
+          document.getElementById("rem-value").textContent = rems.length
+            ? rems.map((r) => r.which || "reminder").join(", ")
+            : "None";
+          document.getElementById("rem-sub").textContent = rems.length
+            ? "Shown on this record"
+            : "Use presenter controls on Confirm to simulate";
+
+          document.getElementById("sum-field").textContent =
+            `${field.field_id || "—"} · ${field.county || ""}, ${field.state || ""}`;
+          document.getElementById("sum-product").textContent =
+            `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
+          document.getElementById("sum-date").textContent = data.planned_spray_date || "Not set";
+          document.getElementById("sum-gen").textContent = formatWhen(data.receipt_generated_at);
+
+          const confSum = document.getElementById("conf-summary");
+          const confRaw = document.getElementById("conf-raw");
+          if (conf) {
+            confSum.textContent =
+              conf.summary ||
+              `Bulletin: ${conf.bulletin_saved ?? "unclear"} · Applied: ${conf.applied ?? "unclear"} · Needs review: ${conf.needs_human ?? "—"}`;
+            if (conf.raw_text) {
+              confRaw.hidden = false;
+              confRaw.textContent = "Applicator reply: “" + conf.raw_text + "”";
+            }
+          }
+
+          renderTimeline(document.getElementById("timeline"), data.events);
+
+          document.getElementById("calc-copy").textContent =
+            `Deterministic layers: ${((data.honesty_split || {}).deterministic || []).join(", ") || "points, weather"}.`;
+          document.getElementById("ai-copy").textContent =
+            conf
+              ? `Confirmation layer: ${conf.layer || "—"}. Model layers: ${((data.honesty_split || {}).model || []).join(", ") || "none"}.`
+              : "No confirmation interpretation yet.";
+
+          const cites = document.getElementById("cite-list");
+          cites.innerHTML = "";
+          (data.citations || []).forEach((c) => {
+            const li = document.createElement("li");
+            li.textContent = c;
+            cites.appendChild(li);
+          });
+
+          document.getElementById("tech-out").textContent = JSON.stringify(data, null, 2);
+          live.textContent = "Record loaded: " + statusLabel(data.status);
+        } catch (ex) {
+          showError(err, String(ex.message || ex));
+          live.textContent = "Record failed to load";
+        }
+      })();
     }
   </script>
 </body>
