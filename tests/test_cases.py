@@ -50,6 +50,25 @@ def test_create_nudge_confirm_and_receipt(tmp_path):
     assert Path(paths["pdf"]).stat().st_size > 500
 
 
+def test_cohort_summary_includes_seed_and_live(tmp_path):
+    from src.cases import CaseStore
+    from src.cohort import build_cohort_summary
+    from src.planner import plan
+
+    store = CaseStore(path=tmp_path / "cases.jsonl")
+    case = store.create(
+        plan(offline=True),
+        planned_spray_date="2026-08-15",
+        applicator_name="Test Pilot",
+        phone="+1 (515) 555-0199",
+    )
+    summary = build_cohort_summary(store)
+    assert summary["stats"]["seed_examples"] >= 3
+    assert summary["stats"]["live_cases"] >= 1
+    assert summary["stats"]["total"] == summary["stats"]["seed_examples"] + summary["stats"]["live_cases"]
+    assert any(m.get("case_id") == case.case_id for m in summary["members"])
+
+
 def test_cannot_nudge_confirmed(tmp_path):
     store = CaseStore(path=tmp_path / "cases.jsonl")
     case = store.create(plan(offline=True), planned_spray_date=None)

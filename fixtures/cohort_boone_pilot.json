@@ -1,0 +1,40 @@
+{
+  "cohort_id": "boone-ia-esa-pilot-2026",
+  "name": "Boone County ESA label pilot",
+  "county": "Boone",
+  "state": "IA",
+  "season": "2026",
+  "product_default": "7969-500",
+  "channel": "sms",
+  "channel_note": "Production uses Twilio SMS (US). WhatsApp optional per partner. India AgriNexus WhatsApp is separate.",
+  "partner": "Extension / PAT training cohort (illustrative)",
+  "seed_applicators": [
+    {
+      "applicator_id": "seed-martinez",
+      "name": "J. Martinez",
+      "phone": "+1 (515) 555-0142",
+      "field_label": "North 40 · Boone",
+      "status": "CONFIRMED",
+      "plan_status": "APPLY_OK",
+      "is_seed": true
+    },
+    {
+      "applicator_id": "seed-chen",
+      "name": "R. Chen",
+      "phone": "+1 (515) 555-0198",
+      "field_label": "River bottom · Boone",
+      "status": "NUDGED",
+      "plan_status": "APPLY_OK",
+      "is_seed": true
+    },
+    {
+      "applicator_id": "seed-williams",
+      "name": "A. Williams",
+      "phone": "+1 (515) 555-0177",
+      "field_label": "Hwy 30 east · Boone",
+      "status": "PLANNED",
+      "plan_status": "APPLY_OK",
+      "is_seed": true
+    }
+  ]
+}

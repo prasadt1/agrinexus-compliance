@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Confirm Completion — AgriNexus Compliance</title>
+  <title>Inbox reply — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -18,11 +18,12 @@
       <p class="brand">AgriNexus <span>Compliance</span></p>
     </div>
     <div class="top-actions">
-      <nav aria-label="Demo steps">
+      <nav aria-label="Product areas">
         <ol class="steps">
-          <li><a href="/">1. Check</a></li>
-          <li><a class="active" href="/confirm.html">2. Confirm</a></li>
-          <li><a id="nav-receipt" href="/receipt.html">3. Record</a></li>
+          <li><a href="/">Partner</a></li>
+          <li><a href="/check.html">Applicator check</a></li>
+          <li><a class="active" href="/confirm.html">Inbox reply</a></li>
+          <li><a id="nav-receipt" href="/receipt.html">Record</a></li>
         </ol>
       </nav>
       <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
@@ -30,67 +31,78 @@
   </header>
 
   <p class="disclaimer">
-    Decision-support / education demo. Not legal advice. The product label controls.
-    Describe what you completed in your own words — not a one-click “done.”
+    Decision-support / education product. Not legal advice. The product label controls.
+    Production channel: SMS. This screen previews the message and collects the reply.
   </p>
 
   <main class="layout">
     <div id="gate" class="gate-empty" hidden>
-      <p>No application plan is loaded yet. Start with a plan check first.</p>
-      <a class="button" href="/">Check Application Plan</a>
+      <p>No live applicator session yet. Run a check first — that creates a case on the partner board.</p>
+      <a class="button" href="/check.html">Open applicator check</a>
     </div>
 
     <div id="main-flow" hidden>
-      <h1 class="page-title">Confirm what you completed</h1>
+      <h1 class="page-title">Reply to the reminder</h1>
       <p class="lede">
-        Tell us whether you saved the bulletin, kept mitigation practices in place,
-        and applied within the planned conditions.
+        In production this arrives as SMS. Here you see the outbound text, then answer
+        like an applicator would — in your own words.
       </p>
 
-      <div class="record-block" data-tour="case-summary">
-        <h2>This application <span id="status-pill" class="pill idle"></span></h2>
-        <dl class="summary-grid" style="margin:0;padding:0;border:none;background:transparent">
-          <div>
-            <dt>Field</dt>
-            <dd id="sum-field">—</dd>
+      <div class="phone-stage" data-tour="sms-thread">
+        <div class="phone">
+          <div class="phone-notch" aria-hidden="true"></div>
+          <div class="phone-header">
+            <span class="phone-from">AgriNexus</span>
+            <span class="phone-channel">SMS · US</span>
           </div>
-          <div>
-            <dt>Product</dt>
-            <dd id="sum-product">—</dd>
+          <div class="phone-thread" id="sms-thread">
+            <div class="bubble out" id="sms-outbound">Loading message…</div>
           </div>
-          <div>
-            <dt>Plan result</dt>
-            <dd id="sum-plan">—</dd>
-          </div>
-          <div>
-            <dt>Planned spray date</dt>
-            <dd id="sum-date">—</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="record-block" data-tour="timeline">
-        <h2>Activity</h2>
-        <ul class="timeline" id="timeline"></ul>
-      </div>
-
-      <form id="confirm-form" class="form" data-tour="confirm-form">
-        <label>
-          What did you complete?
-          <textarea
-            id="reply"
-            name="confirmation"
-            rows="5"
-            autocomplete="off"
-            placeholder="Example: I saved the Boone bulletin, kept the grassed waterway, and sprayed at 7 AM when wind was about 6 mph…"
-          ></textarea>
-        </label>
-        <div class="actions">
-          <button type="submit" id="btn-confirm" data-busy-label="Reviewing…">
-            Review My Confirmation
-          </button>
+          <form id="confirm-form" class="phone-compose" data-tour="confirm-form">
+            <label class="sr-only" for="reply">Your reply</label>
+            <textarea
+              id="reply"
+              name="confirmation"
+              rows="3"
+              autocomplete="off"
+              placeholder="Reply: saved bulletin, kept grassed waterway, sprayed at 7am under 6 mph…"
+            ></textarea>
+            <button type="submit" id="btn-confirm" data-busy-label="Sending…">Send reply</button>
+          </form>
         </div>
-      </form>
+        <div class="phone-aside">
+          <div class="record-block" data-tour="case-summary">
+            <h2>This applicator <span id="status-pill" class="pill idle"></span></h2>
+            <dl class="summary-grid" style="margin:0;padding:0;border:none;background:transparent">
+              <div>
+                <dt>Name</dt>
+                <dd id="sum-name">—</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd id="sum-phone">—</dd>
+              </div>
+              <div>
+                <dt>Field</dt>
+                <dd id="sum-field">—</dd>
+              </div>
+              <div>
+                <dt>Product</dt>
+                <dd id="sum-product">—</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="record-block" data-tour="timeline">
+            <h2>Activity</h2>
+            <ul class="timeline" id="timeline"></ul>
+          </div>
+          <div class="actions">
+            <button type="button" class="secondary" id="btn-nudge-24">Send day-1 SMS reminder</button>
+            <button type="button" class="secondary" id="btn-nudge-48">Send day-2 SMS reminder</button>
+          </div>
+          <p class="muted">Reminders update the partner board status to “waiting on reply.”</p>
+        </div>
+      </div>
 
       <div id="error" class="error" role="alert" hidden></div>
       <p id="live" class="live" aria-live="polite"></p>
@@ -100,40 +112,21 @@
           <h2 id="interp-title"></h2>
           <p id="interp-body"></p>
         </div>
-        <div class="split-explain">
-          <article class="explain calc">
-            <h3>Calculated from published rules</h3>
-            <p>Case status and reminder timing are tracked by system rules — not invented by the model.</p>
-          </article>
-          <article class="explain ai">
-            <h3>AI-assisted interpretation</h3>
-            <p id="interp-ai">—</p>
-          </article>
-        </div>
         <div class="actions">
-          <a id="to-receipt" class="button" href="/receipt.html">View Application Record →</a>
+          <a id="to-receipt" class="button" href="/receipt.html">View application record →</a>
+          <a class="button ghost" href="/">Back to partner board</a>
         </div>
       </section>
-    </div>
 
-    <section class="presenter">
-      <details class="panel">
-        <summary>Presenter controls</summary>
-        <p class="muted">Simulate the follow-up loop without waiting a day.</p>
-        <div class="actions">
-          <button type="button" class="secondary" id="btn-nudge-24">Simulate day-1 reminder</button>
-          <button type="button" class="secondary" id="btn-nudge-48">Simulate day-2 reminder</button>
-        </div>
-        <label class="check" style="margin-top:0.85rem">
+      <details class="panel presenter">
+        <summary>Presenter / Bedrock</summary>
+        <label class="check">
           <input type="checkbox" id="bedrock" />
-          Interpret with Bedrock (needs AWS model access; leave unchecked for offline demo)
+          Interpret with Bedrock (needs AWS; leave unchecked for offline)
         </label>
-        <details class="panel" style="margin-top:0.75rem">
-          <summary>Technical case ID</summary>
-          <p class="muted" translate="no" id="tech-case-id">—</p>
-        </details>
+        <p class="muted" translate="no" id="tech-case-id">—</p>
       </details>
-    </section>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
@@ -151,6 +144,19 @@
       return "idle";
     }
 
+    function setOutbound(text) {
+      document.getElementById("sms-outbound").textContent = text || "No outbound message yet.";
+    }
+
+    function appendInbound(text) {
+      const thread = document.getElementById("sms-thread");
+      const bubble = document.createElement("div");
+      bubble.className = "bubble in";
+      bubble.textContent = text;
+      thread.appendChild(bubble);
+      thread.scrollTop = thread.scrollHeight;
+    }
+
     async function refreshCase() {
       if (!caseId) return null;
       const data = await api("/api/cases/" + encodeURIComponent(caseId));
@@ -158,17 +164,18 @@
       const field = plan.field || {};
       const product = plan.product || {};
 
+      document.getElementById("sum-name").textContent = data.applicator_name || "Pilot applicator";
+      document.getElementById("sum-phone").textContent = data.phone || "—";
       document.getElementById("sum-field").textContent =
         `${field.field_id || "—"} · ${field.county || ""}, ${field.state || ""}`;
       document.getElementById("sum-product").textContent =
         `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
-      document.getElementById("sum-plan").textContent = statusLabel(plan.status);
-      document.getElementById("sum-date").textContent = data.planned_spray_date || "Not set";
 
       const pill = document.getElementById("status-pill");
       pill.textContent = statusLabel(data.status);
       pill.className = "pill " + pillClass(data.status);
 
+      setOutbound(data.outbound_preview);
       renderTimeline(document.getElementById("timeline"), data.events);
       document.getElementById("tech-case-id").textContent = data.case_id;
       document.getElementById("nav-receipt").href =
@@ -188,7 +195,7 @@
         gate.hidden = false;
         main.hidden = true;
         gate.querySelector("p").textContent =
-          "Could not load this application: " + String(ex.message || ex);
+          "Could not load this session: " + String(ex.message || ex);
       });
     }
 
@@ -196,12 +203,13 @@
       const err = document.getElementById("error");
       showError(err, "");
       try {
-        await api("/api/cases/" + encodeURIComponent(caseId) + "/nudge", {
+        const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/nudge", {
           method: "POST",
           body: JSON.stringify({ which }),
         });
+        setOutbound(data.outbound_preview);
         await refreshCase();
-        document.getElementById("live").textContent = "Reminder simulated: " + which;
+        document.getElementById("live").textContent = "SMS reminder queued: " + which;
       } catch (ex) {
         showError(err, String(ex.message || ex));
       }
@@ -218,11 +226,12 @@
       showError(err, "");
       const text = document.getElementById("reply").value.trim();
       if (!text) {
-        showError(err, "Describe what you completed before submitting.");
+        showError(err, "Type a reply before sending.");
         return;
       }
       setBusy(btn, true);
       try {
+        appendInbound(text);
         const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/confirm", {
           method: "POST",
           body: JSON.stringify({
@@ -243,16 +252,14 @@
         document.getElementById("interp-body").textContent =
           conf.summary ||
           (needs
-            ? "The reply was too thin or unclear. Ask the applicator for more detail."
-            : "Confirmation captured for the application record.");
-        document.getElementById("interp-ai").textContent =
-          `Layer: ${conf.layer || "—"}. Bulletin saved: ${conf.bulletin_saved ?? "unclear"}. ` +
-          `Applied: ${conf.applied ?? "unclear"}. Confidence: ${conf.confidence ?? "—"}.`;
+            ? "Reply was too thin. Ask for bulletin + practices + spray conditions."
+            : "Reply recorded. The partner board will show this applicator as confirmed.");
         live.textContent = document.getElementById("interp-title").textContent;
+        document.getElementById("reply").value = "";
         section.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (ex) {
         showError(err, String(ex.message || ex));
-        live.textContent = "Confirmation failed";
+        live.textContent = "Reply failed";
       } finally {
         setBusy(btn, false);
       }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Check Application — AgriNexus Compliance</title>
+  <title>Boone County Pilot — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -11,168 +11,97 @@
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/tour-theme.css" />
 </head>
-<body data-tour-page="check">
+<body data-tour-page="home">
   <header class="top">
     <div class="brand-wrap">
       <div class="brand-mark" aria-hidden="true">A</div>
       <p class="brand">AgriNexus <span>Compliance</span></p>
     </div>
     <div class="top-actions">
-      <nav aria-label="Demo steps" data-tour="steps">
+      <nav aria-label="Product areas">
         <ol class="steps">
-          <li><a class="active" href="/">1. Check</a></li>
-          <li><a id="nav-confirm" href="/confirm.html">2. Confirm</a></li>
-          <li><a id="nav-receipt" href="/receipt.html">3. Record</a></li>
+          <li><a class="active" href="/">Partner</a></li>
+          <li><a href="/check.html">Applicator check</a></li>
+          <li><a id="nav-confirm" href="/confirm.html">Inbox reply</a></li>
+          <li><a id="nav-receipt" href="/receipt.html">Record</a></li>
         </ol>
       </nav>
-      <button type="button" class="btn-tour" data-tour-trigger>
-        Take the tour
-      </button>
+      <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
     </div>
   </header>
 
   <p class="disclaimer">
-    Decision-support / education demo. Not legal advice. The product label controls.
+    Decision-support / education product. Not legal advice. The pesticide label controls.
   </p>
 
   <main class="layout">
-    <section class="welcome" data-tour="welcome">
-      <p class="eyebrow">U.S. ESA label demo</p>
-      <h1>Check this application before spraying</h1>
+    <section class="welcome" data-tour="home-hero">
+      <p class="eyebrow">Partner view · Boone County pilot</p>
+      <h1>See who followed through on ESA label steps</h1>
       <p class="lede">
-        See whether this field meets mitigation-point requirements, whether weather
-        permits application, and which bulletin steps to complete first.
+        You run a county or training program. Applicators get a plan for one field and product,
+        a reminder by SMS, and a place to confirm what they did. You see the cohort —
+        who planned, who was reminded, who confirmed — the same closed loop as Outturn / AgriNexus.
       </p>
-      <p class="bridge" data-tour="bridge">
-        <strong>Same closed loop as Outturn / AgriNexus</strong> — plan, remind, confirm,
-        record — applied to 2026 U.S. pesticide-<em>label</em> mitigation (Bulletins Live! Two,
-        runoff points, spray-drift rules).
+      <p class="bridge">
+        <strong>How a pilot works:</strong> enroll applicators → each gets a check for Liberty ULTRA
+        (7969-500) in Boone → SMS reminds them → they reply in plain language → you download records
+        and watch follow-through. SMS is the US channel (Twilio); WhatsApp stays on the India product.
       </p>
       <div class="actions">
-        <button type="button" class="button" data-tour-trigger>Take a 90-second tour</button>
-        <button type="button" class="button ghost" id="scroll-to-check">Start with this example</button>
+        <a class="button" href="/check.html">Open applicator check (try one session)</a>
+        <button type="button" class="button ghost" data-tour-trigger>90-second tour</button>
       </div>
     </section>
 
-    <dl class="summary-grid" data-tour="summary" id="demo-pack">
-      <div>
-        <dt>Field</dt>
-        <dd>Boone County, Iowa (Iowa State ICM Table 1)</dd>
+    <section class="metric-row" data-tour="cohort-stats" id="cohort-stats">
+      <div class="metric">
+        <span class="label">In cohort</span>
+        <span class="value" id="stat-total">—</span>
+        <span class="sub" id="stat-total-sub">live + example roster</span>
       </div>
-      <div>
-        <dt>Product</dt>
-        <dd>Liberty ULTRA Herbicide</dd>
+      <div class="metric">
+        <span class="label">Confirmed</span>
+        <span class="value" id="stat-confirmed">—</span>
+        <span class="sub">record completed</span>
       </div>
-      <div>
-        <dt>EPA Reg. No.</dt>
-        <dd translate="no">7969-500</dd>
+      <div class="metric">
+        <span class="label">Follow-through</span>
+        <span class="value" id="stat-pct">—</span>
+        <span class="sub" id="stat-breakdown">planned / nudged</span>
       </div>
-      <div>
-        <dt>Bulletin</dt>
-        <dd>August 2026 · no extra PULA in map view</dd>
-      </div>
-    </dl>
+    </section>
 
-    <div class="split-explain" data-tour="honesty-preview">
+    <section class="record-block" data-tour="cohort-board">
+      <h2>Boone County ESA label pilot</h2>
+      <p class="muted" id="cohort-meta">Loading…</p>
+      <div class="table-wrap">
+        <table class="cohort-table" id="cohort-table">
+          <thead>
+            <tr>
+              <th>Applicator</th>
+              <th>Field</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cohort-body"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:0.75rem">
+        Example rows show a training roster. When you run an applicator check, a <strong>live</strong> row appears here.
+      </p>
+    </section>
+
+    <section class="split-explain" data-tour="roles">
       <article class="explain calc">
-        <h3>Calculated from published rules</h3>
-        <p>Mitigation points and weather limits come from the label and EPA menu — not from AI.</p>
+        <h3>Partner (you)</h3>
+        <p>See the board. Re-nudge people who have not confirmed. Keep receipts for the program.</p>
       </article>
       <article class="explain ai">
-        <h3>AI-assisted (optional)</h3>
-        <p>Reading label/bulletin language and free-text confirmation. Offline demo works without AWS.</p>
+        <h3>Applicator</h3>
+        <p>Check one field + product, get SMS reminders, reply what they did, download a record.</p>
       </article>
-    </div>
-
-    <form id="plan-form" class="form">
-      <label>
-        Planned spray date
-        <input type="date" id="spray-date" name="planned_spray_date" autocomplete="off" />
-      </label>
-      <div class="actions" data-tour="check-cta">
-        <button type="submit" id="btn-plan" data-busy-label="Checking…">Check Application Plan</button>
-      </div>
-    </form>
-
-    <div id="error" class="error" role="alert" hidden></div>
-    <p id="live" class="live" aria-live="polite"></p>
-
-    <section id="result" hidden>
-      <div id="verdict" class="verdict" data-kind="ok" data-tour="verdict">
-        <h2 id="verdict-title"></h2>
-        <p id="verdict-body"></p>
-      </div>
-
-      <div class="metric-row">
-        <div class="metric">
-          <span class="label">Mitigation points</span>
-          <span class="value" id="pts-value">—</span>
-          <span class="sub" id="pts-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Weather</span>
-          <span class="value" id="wx-value">—</span>
-          <span class="sub" id="wx-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Next step</span>
-          <span class="value" id="next-value" style="font-size:1rem;line-height:1.3">—</span>
-          <span class="sub" id="next-sub"></span>
-        </div>
-      </div>
-
-      <div class="record-block">
-        <h2>Before you apply</h2>
-        <ul class="list-plain" id="bulletin-list"></ul>
-      </div>
-
-      <div class="record-block" id="adds-block" hidden>
-        <h2>Recommended additions</h2>
-        <ul class="list-plain" id="adds-list"></ul>
-      </div>
-
-      <div class="split-explain">
-        <article class="explain calc">
-          <h3>Calculated from published rules</h3>
-          <p id="calc-copy"></p>
-        </article>
-        <article class="explain ai">
-          <h3>AI-assisted (when enabled)</h3>
-          <p id="ai-copy"></p>
-        </article>
-      </div>
-
-      <div class="actions">
-        <a id="to-confirm" class="button" href="/confirm.html">Continue to Confirm →</a>
-      </div>
-
-      <details class="panel">
-        <summary>How this was determined</summary>
-        <p class="muted">Honesty split and fixture citations for reviewers.</p>
-        <pre class="tech-pre" id="how-out"></pre>
-      </details>
-    </section>
-
-    <section class="presenter">
-      <details class="panel">
-        <summary>Presenter controls</summary>
-        <p class="muted">Hidden during outreach demos. For walkthroughs and testing only.</p>
-        <label class="check">
-          <input type="checkbox" id="windy" />
-          Use blocked-weather scenario (wind above label limit)
-        </label>
-        <label class="check">
-          <input type="checkbox" id="bedrock" />
-          Enrich plan with Bedrock (needs AWS model access)
-        </label>
-        <details class="panel" style="margin-top:0.75rem">
-          <summary>About this demo / fixture provenance</summary>
-          <p class="muted">
-            Liberty ULTRA / <span translate="no">7969-500</span>, Boone Table 1 points,
-            August 2026 BLT printable in <code>fixtures/</code>. See README for URLs and dates.
-          </p>
-        </details>
-      </details>
     </section>
   </main>
 
@@ -180,150 +109,69 @@
   <script src="/app.js"></script>
   <script src="/tour.js"></script>
   <script>
-    document.getElementById("scroll-to-check").addEventListener("click", function () {
-      document.getElementById("demo-pack").scrollIntoView({ behavior: "smooth", block: "start" });
-      document.getElementById("btn-plan").focus();
-    });
-
     function syncNav() {
       const id = getCaseId();
-      const c = document.getElementById("nav-confirm");
-      const r = document.getElementById("nav-receipt");
       if (id) {
-        c.href = "/confirm.html?case_id=" + encodeURIComponent(id);
-        r.href = "/receipt.html?case_id=" + encodeURIComponent(id);
-        c.removeAttribute("aria-disabled");
-        r.removeAttribute("aria-disabled");
+        document.getElementById("nav-confirm").href =
+          "/confirm.html?case_id=" + encodeURIComponent(id);
+        document.getElementById("nav-receipt").href =
+          "/receipt.html?case_id=" + encodeURIComponent(id);
       }
     }
     syncNav();
 
-    function verdictKind(status) {
-      if (status === "APPLY_OK") return "ok";
-      if (status === "POINTS_SHORT") return "warn";
-      return "block";
+    function statusClass(st) {
+      if (st === "CONFIRMED") return "ok";
+      if (st === "NUDGED") return "warn";
+      return "idle";
     }
 
-    document.getElementById("plan-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const err = document.getElementById("error");
-      const btn = document.getElementById("btn-plan");
-      const live = document.getElementById("live");
-      showError(err, "");
-      setBusy(btn, true);
-      try {
-        const data = await api("/api/plan", {
-          method: "POST",
-          body: JSON.stringify({
-            windy: document.getElementById("windy").checked,
-            bedrock: document.getElementById("bedrock").checked,
-            planned_spray_date: document.getElementById("spray-date").value || null,
-            create_case: true,
-          }),
-        });
-        const plan = data.plan;
-        const caseObj = data.case;
-        if (caseObj) setCaseId(caseObj.case_id);
-        syncNav();
+    async function loadCohort() {
+      const data = await api("/api/cohort");
+      const s = data.stats || {};
+      document.getElementById("stat-total").textContent = s.total ?? "—";
+      document.getElementById("stat-total-sub").textContent =
+        `${s.live_cases || 0} live · ${s.seed_examples || 0} examples`;
+      document.getElementById("stat-confirmed").textContent = s.confirmed ?? "—";
+      document.getElementById("stat-pct").textContent =
+        (s.follow_through_pct != null ? s.follow_through_pct + "%" : "—");
+      document.getElementById("stat-breakdown").textContent =
+        `${s.planned || 0} planned · ${s.nudged || 0} waiting on reply`;
+      document.getElementById("cohort-meta").textContent =
+        `${data.county}, ${data.state} · ${data.season} · channel: ${data.channel || "sms"} · ${data.partner || ""}`;
 
-        document.getElementById("result").hidden = false;
-        const kind = verdictKind(plan.status);
-        const verdict = document.getElementById("verdict");
-        verdict.dataset.kind = kind;
-        document.getElementById("verdict-title").textContent = statusLabel(plan.status);
-
-        const pts = plan.points || {};
-        const wx = plan.weather || {};
-        let body = "";
-        if (plan.status === "APPLY_OK") {
-          body = "Documented mitigation meets the required points, and weather is within the label limits.";
-        } else if (plan.status === "WEATHER_BLOCK") {
-          body = (wx.weather_block_reasons || []).join(" ") || "Weather conditions do not allow application right now.";
+      const body = document.getElementById("cohort-body");
+      body.innerHTML = "";
+      (data.members || []).forEach((m) => {
+        const tr = document.createElement("tr");
+        const live = !m.is_seed && m.case_id;
+        tr.innerHTML = `
+          <td>
+            <strong>${m.name || "—"}</strong>
+            <div class="muted">${m.phone || ""} ${m.is_seed ? "· example" : "· live"}</div>
+          </td>
+          <td>${m.field_label || "—"}</td>
+          <td><span class="pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
+          <td class="row-actions"></td>
+        `;
+        const actions = tr.querySelector(".row-actions");
+        if (live) {
+          const a = document.createElement("a");
+          a.className = "button ghost";
+          a.style.padding = "0.35rem 0.65rem";
+          a.style.fontSize = "0.82rem";
+          a.href = "/confirm.html?case_id=" + encodeURIComponent(m.case_id);
+          a.textContent = "Open inbox";
+          actions.appendChild(a);
         } else {
-          body = "Add practices from the mitigation menu until the shortfall is closed.";
+          actions.textContent = "—";
         }
-        document.getElementById("verdict-body").textContent = body;
+        body.appendChild(tr);
+      });
+    }
 
-        document.getElementById("pts-value").textContent =
-          `${pts.earned_points ?? "—"} / ${pts.required_points ?? "—"}`;
-        document.getElementById("pts-sub").textContent =
-          pts.shortfall > 0 ? `Short by ${pts.shortfall} point(s)` : "Requirement met";
-
-        document.getElementById("wx-value").textContent = wx.weather_ok ? "OK" : "Blocked";
-        document.getElementById("wx-sub").textContent =
-          `Wind ${wx.wind_mph ?? "—"} mph (label limit 15 mph)`;
-
-        const next = document.getElementById("next-value");
-        const nextSub = document.getElementById("next-sub");
-        if (plan.status === "APPLY_OK") {
-          next.textContent = "Save bulletin, then confirm";
-          nextSub.textContent = "Continue to the confirmation step after application";
-        } else if (plan.status === "WEATHER_BLOCK") {
-          next.textContent = "Wait for safer weather";
-          nextSub.textContent = "Re-check before spraying";
-        } else {
-          next.textContent = "Add mitigation";
-          nextSub.textContent = "See recommended practices below";
-        }
-
-        const bl = document.getElementById("bulletin-list");
-        bl.innerHTML = "";
-        (plan.bulletin_actions || []).forEach((a) => {
-          const li = document.createElement("li");
-          li.textContent = a;
-          bl.appendChild(li);
-        });
-
-        const adds = plan.recommended_additions || [];
-        const addsBlock = document.getElementById("adds-block");
-        const addsList = document.getElementById("adds-list");
-        addsList.innerHTML = "";
-        if (adds.length) {
-          addsBlock.hidden = false;
-          adds.forEach((a) => {
-            const li = document.createElement("li");
-            li.textContent = `${a.name} (+${a.points} pt) → ${a.shortfall_after === 0 ? "closes shortfall" : `shortfall then ${a.shortfall_after}`}`;
-            addsList.appendChild(li);
-          });
-        } else {
-          addsBlock.hidden = true;
-        }
-
-        document.getElementById("calc-copy").textContent =
-          `Points credited: ${(practiceNames(pts.credited) || []).join(", ") || "none"}. ` +
-          `Weather gate is rule-based (${wx.weather_ok ? "pass" : "fail"}).`;
-
-        const model = plan.model;
-        document.getElementById("ai-copy").textContent = model
-          ? (model.summary || "Model summary available in technical details.")
-          : "Offline demo: no AI summary. Calculated rules still apply.";
-
-        document.getElementById("how-out").textContent = JSON.stringify(
-          {
-            status: plan.status,
-            points: pts,
-            weather: wx,
-            recommended_additions: adds,
-            layers: plan.layers,
-            citations: plan.citations,
-            model: model || null,
-            case_id: caseObj && caseObj.case_id,
-          },
-          null,
-          2
-        );
-
-        document.getElementById("to-confirm").href =
-          "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);
-
-        live.textContent = statusLabel(plan.status);
-        document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
-      } catch (ex) {
-        showError(err, String(ex.message || ex));
-        live.textContent = "Check failed";
-      } finally {
-        setBusy(btn, false);
-      }
+    loadCohort().catch((ex) => {
+      document.getElementById("cohort-meta").textContent = String(ex.message || ex);
     });
   </script>
 </body>

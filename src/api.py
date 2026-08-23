@@ -1,5 +1,5 @@
 """
-FastAPI app: plan → cases → confirm → receipt. Serves static web UI.
+FastAPI app: cohort board → plan → confirm → receipt. Serves static web UI.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .cases import CaseStore
+from .cohort import build_cohort_summary, nudge_message_for_case
 from .interpreter import interpret
 from .planner import plan
 from .receipt import build_receipt_files, build_receipt_payload
@@ -21,12 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 
 app = FastAPI(
-    title="AgriNexus Compliance Demo",
+    title="AgriNexus Compliance",
     description=(
-        "Decision-support / education demo. Not legal advice. "
-        "The product label controls."
+        "Closed-loop ESA pesticide-label mitigation: plan, remind, confirm, record. "
+        "Decision-support / education. Not legal advice. The product label controls."
     ),
-    version="0.2.0",
+    version="0.3.0",
 )
 
 store = CaseStore()
@@ -37,6 +38,8 @@ class PlanRequest(BaseModel):
     bedrock: bool = False
     planned_spray_date: Optional[str] = None
     create_case: bool = True
+    applicator_name: Optional[str] = "You (pilot applicator)"
+    phone: Optional[str] = "+1 (515) 555-0100"
 
 
 class ConfirmRequest(BaseModel):
@@ -49,7 +52,6 @@ class NudgeRequest(BaseModel):
 
 
 def _bedrock_http_error(exc: Exception) -> HTTPException:
-    """Surface Bedrock/IAM failures as 502 instead of an opaque 500."""
     name = type(exc).__name__
     msg = str(exc)
     if "AccessDenied" in name or "AccessDenied" in msg:
@@ -57,8 +59,8 @@ def _bedrock_http_error(exc: Exception) -> HTTPException:
             status_code=502,
             detail=(
                 "Bedrock model access denied (IAM / AWS Marketplace subscription). "
-                "Uncheck “Interpret with Bedrock” to use the offline stub, "
-                "or enable model access in the Bedrock console for this account/region."
+                "Uncheck Bedrock to use the offline stub, or enable model access "
+                "in the Bedrock console for this account/region."
             ),
         )
     return HTTPException(
@@ -72,6 +74,11 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/cohort")
+def api_cohort() -> dict[str, Any]:
+    return build_cohort_summary(store)
+
+
 @app.post("/api/plan")
 def api_plan(body: PlanRequest) -> dict[str, Any]:
     try:
@@ -82,7 +89,12 @@ def api_plan(body: PlanRequest) -> dict[str, Any]:
         raise
     out: dict[str, Any] = {"plan": result}
     if body.create_case:
-        case = store.create(result, planned_spray_date=body.planned_spray_date)
+        case = store.create(
+            result,
+            planned_spray_date=body.planned_spray_date,
+            applicator_name=body.applicator_name,
+            phone=body.phone,
+        )
         out["case"] = case.as_dict()
     return out
 
@@ -97,7 +109,17 @@ def api_get_case(case_id: str) -> dict[str, Any]:
     case = store.get(case_id)
     if case is None:
         raise HTTPException(status_code=404, detail="case not found")
-    return case.as_dict()
+    data = case.as_dict()
+    # Attach latest outbound SMS preview for the message UI
+    outbound = None
+    for ev in reversed(case.events or []):
+        if ev.get("outbound_message"):
+            outbound = ev["outbound_message"]
+            break
+    if outbound is None and case.status in {"PLANNED", "NUDGED"}:
+        outbound = nudge_message_for_case(case, which="T+24")
+    data["outbound_preview"] = outbound
+    return data
 
 
 @app.post("/api/cases/{case_id}/nudge")
@@ -109,7 +131,13 @@ def api_nudge(case_id: str, body: Optional[NudgeRequest] = None) -> dict:
         raise HTTPException(status_code=404, detail="case not found") from None
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
-    return case.as_dict()
+    data = case.as_dict()
+    data["outbound_preview"] = None
+    for ev in reversed(case.events or []):
+        if ev.get("outbound_message"):
+            data["outbound_preview"] = ev["outbound_message"]
+            break
+    return data
 
 
 @app.post("/api/cases/{case_id}/confirm")

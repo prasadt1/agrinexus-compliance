@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,12 +32,21 @@ class ComplianceCase:
     field_id: str
     epa_reg_no: str
     planned_spray_date: str | None = None
+    applicator_name: str | None = None
+    phone: str | None = None
     plan: dict[str, Any] = field(default_factory=dict)
     confirmation: dict[str, Any] | None = None
     events: list[dict[str, Any]] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def _row_to_case(row: dict[str, Any]) -> ComplianceCase:
+    """Backward-compatible load for rows written before applicator fields existed."""
+    allowed = {f.name for f in fields(ComplianceCase)}
+    filtered = {k: v for k, v in row.items() if k in allowed}
+    return ComplianceCase(**filtered)
 
 
 class CaseStore:
@@ -69,10 +78,10 @@ class CaseStore:
         self,
         plan: dict[str, Any],
         planned_spray_date: str | None = None,
+        applicator_name: str | None = None,
+        phone: str | None = None,
     ) -> ComplianceCase:
         now = _utc_now()
-        # Demo keeps PLANNED even on weather/points short so the confirm loop stays visible.
-        # BLOCKED / EXPIRED reserved for later Dynamo-compatible transitions.
         case = ComplianceCase(
             case_id=str(uuid.uuid4()),
             status="PLANNED",
@@ -81,6 +90,8 @@ class CaseStore:
             field_id=(plan.get("field") or {}).get("field_id") or "unknown",
             epa_reg_no=(plan.get("product") or {}).get("epa_reg_no") or "unknown",
             planned_spray_date=planned_spray_date,
+            applicator_name=applicator_name,
+            phone=phone,
             plan=plan,
             confirmation=None,
             events=[
@@ -99,11 +110,11 @@ class CaseStore:
     def get(self, case_id: str) -> ComplianceCase | None:
         for row in self._read_all():
             if row.get("case_id") == case_id:
-                return ComplianceCase(**row)
+                return _row_to_case(row)
         return None
 
     def list_cases(self) -> list[ComplianceCase]:
-        return [ComplianceCase(**row) for row in self._read_all()]
+        return [_row_to_case(row) for row in self._read_all()]
 
     def _update(self, case: ComplianceCase) -> ComplianceCase:
         case.updated_at = _utc_now()
@@ -122,8 +133,10 @@ class CaseStore:
     def simulate_reminder(self, case_id: str, which: str = "T+24") -> ComplianceCase:
         """
         Demo stand-in for EventBridge T+24 / T+48.
-        Flips PLANNED → NUDGED and appends a visible event for the receipt.
+        Flips PLANNED → NUDGED and appends a visible SMS-style outbound for the receipt.
         """
+        from .cohort import nudge_message_for_case
+
         case = self.get(case_id)
         if case is None:
             raise KeyError(f"case not found: {case_id}")
@@ -133,12 +146,15 @@ class CaseStore:
         now = _utc_now()
         label = which if which in {"T+24", "T+48"} else "T+24"
         case.status = "NUDGED"
+        outbound = nudge_message_for_case(case, which=label)
         case.events.append(
             {
                 "at": now,
                 "type": "reminder_simulated",
                 "detail": f"Simulated {label} confirm-or-remind (demo stand-in for EventBridge)",
                 "which": label,
+                "channel": "sms",
+                "outbound_message": outbound,
             }
         )
         return self._update(case)
@@ -155,12 +171,12 @@ class CaseStore:
         now = _utc_now()
         case.confirmation = confirmation
         if confirmation.get("needs_human"):
-            # Stay NUDGED or PLANNED but record; do not auto-confirm
             case.events.append(
                 {
                     "at": now,
                     "type": "confirm_needs_human",
-                    "detail": confirmation.get("summary") or "Interpreter flagged needs_human",
+                    "detail": confirmation.get("summary")
+                    or "Interpreter flagged needs_human",
                 }
             )
         else:
@@ -169,7 +185,8 @@ class CaseStore:
                 {
                     "at": now,
                     "type": "confirmed",
-                    "detail": confirmation.get("summary") or "Free-text confirmation recorded",
+                    "detail": confirmation.get("summary")
+                    or "Free-text confirmation recorded",
                 }
             )
         return self._update(case)
