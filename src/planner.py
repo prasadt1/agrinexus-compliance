@@ -38,7 +38,7 @@ def load_bundle(
     label_path = label_path or ROOT / "fixtures" / "labels" / "7969-500.json"
     bulletin_path = (
         bulletin_path
-        or ROOT / "fixtures" / "bulletins" / "blt-boone-ia-7969-500-2026-04.json"
+        or ROOT / "fixtures" / "bulletins" / "blt-boone-ia-7969-500-2026-08.json"
     )
     menu_path = menu_path or ROOT / "fixtures" / "mitigation_menu.json"
 
@@ -115,7 +115,8 @@ def build_deterministic_plan(
         "citations": [
             "fixtures/mitigation_menu.json",
             str(label.get("excerpt_markdown_path") or "fixtures/labels/"),
-            "fixtures/bulletins/blt-boone-ia-7969-500-2026-04.json",
+            "fixtures/bulletins/blt-boone-ia-7969-500-2026-08.json",
+            "fixtures/bulletins/blt-boone-ia-7969-500-2026-08.pdf",
         ],
         "layers": {
             "deterministic": ["points", "weather", "status"],

@@ -4,7 +4,7 @@ Decision-support **demo** for 2026 ESA pesticide-**label** mitigation execution 
 
 **Not legal advice. Not certified applicator software.** Labels control; Strategies are frameworks.
 
-**Current demo pack:** Liberty ULTRA · **EPA Reg. No. 7969-500** · Boone County, IA (Iowa State ICM Table 1 field). Bulletins Live! Two printable PDF for that county/month/Reg. No. is still a **manual download** (see `fixtures/bulletins/README.md`).
+**Current demo pack:** Liberty ULTRA · **EPA Reg. No. 7969-500** · Boone County, IA (Iowa State ICM Table 1 field) · Bulletins Live! Two printable for **August 2026** (no extra PULA limits in that map view).
 
 NIW / product intent: [`SETTLED.md`](../../NIW-evidence-pack/SETTLED.md) · [`BUILD-MVP.md`](../../NIW-evidence-pack/BUILD-MVP.md)
 
@@ -38,14 +38,11 @@ uvicorn src.api:app --reload --port 8000
 | `fixtures/labels/7969-500.*` + `sources/7969-500-epa-label-20241206.pdf` | [EPA PPLS label PDF](https://www3.epa.gov/pesticides/chem_search/ppls/007969-00500-20241206.pdf) (Liberty ULTRA ABN) | **2026-08-23** |
 | `fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf` | [EPA Stryax label](https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf) (BLT example in Iowa State article; not wired as default) | **2026-08-23** |
 | `fixtures/mitigation_menu.json` + `fields/field_boone.json` | [Iowa State ICM Table 1](https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements) (Anderson, 11 Mar 2026) citing [EPA Mitigation Menu](https://www.epa.gov/endangered-species/mitigation-menu) | **2026-08-23** |
-| `fixtures/bulletins/blt-boone-ia-7969-500-2026-04.json` | Actions paraphrased from label §12; **printable BLT PDF still pending your download** | **2026-08-23** |
+| `fixtures/bulletins/blt-boone-ia-7969-500-2026-08.pdf` + `.json` | Real Bulletins Live! Two Printable Bulletin for Boone coords + **August 2026** + **7969-500**; no extra PULA limits in map view | Printed **2026-08-23** |
 
 ## Remaining Week 0 leftover
 
-1. Download BLT Printable Bulletin: Boone County, IA + application month + **7969-500** → save PDF under `fixtures/bulletins/`.  
-2. Set `bulletin_pdf` / `pula_active` in the bulletin JSON from that printout.  
-
-Optional: wire Stryax **264-1241** as a second product for the BLT-heavy story.
+Done for the Liberty Ultra / Boone pack: real label PDF + real BLT printable (Aug 2026). Optional next: wire Stryax **264-1241** as a second product for a BLT-heavy contrast case.
 
 ## Layout
 
