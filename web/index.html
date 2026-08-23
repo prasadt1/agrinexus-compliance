@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriNexus Compliance — Plan</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <p class="brand">AgriNexus Compliance</p>
+    <nav>
+      <a class="active" href="/">Plan</a>
+      <a href="/confirm.html">Confirm</a>
+      <a href="/receipt.html">Receipt</a>
+    </nav>
+  </header>
+
+  <p class="disclaimer">
+    Decision-support / education demo. Not legal advice. The product label controls.
+    Fixture dates: mitigation menu <code>retrieved_approx</code> <strong>2026-08-16</strong>
+    (see README / fixture metadata). Educational stubs until replaced with a real label + BLT bulletin.
+  </p>
+
+  <main class="layout">
+    <section>
+      <h1>Plan</h1>
+      <p class="lede">Boone County, IA · DEMO-000001 (stub) · existing field practices from fixture.</p>
+
+      <form id="plan-form" class="form">
+        <label>
+          Planned spray date
+          <input type="date" id="spray-date" name="planned_spray_date" />
+        </label>
+        <label class="check">
+          <input type="checkbox" id="windy" /> Use windy weather fixture (should block)
+        </label>
+        <label class="check">
+          <input type="checkbox" id="bedrock" /> Enrich with Bedrock (needs AWS)
+        </label>
+        <button type="submit">Build plan &amp; open case</button>
+      </form>
+
+      <div id="error" class="error" hidden></div>
+    </section>
+
+    <section id="result" hidden>
+      <h2>Result <span id="status-pill" class="pill"></span></h2>
+
+      <div class="split">
+        <article class="box det">
+          <h3>Deterministic</h3>
+          <p class="hint">Weather thresholds, point arithmetic, status.</p>
+          <pre id="det-out"></pre>
+        </article>
+        <article class="box model">
+          <h3>Model</h3>
+          <p class="hint">Label/bulletin reading, practice reasons (offline = empty).</p>
+          <pre id="model-out"></pre>
+        </article>
+      </div>
+
+      <p id="case-line" class="case-line"></p>
+      <p class="actions">
+        <a id="to-confirm" class="button" href="/confirm.html">Continue to Confirm →</a>
+      </p>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    document.getElementById("plan-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const err = document.getElementById("error");
+      err.hidden = true;
+      try {
+        const body = {
+          windy: document.getElementById("windy").checked,
+          bedrock: document.getElementById("bedrock").checked,
+          planned_spray_date: document.getElementById("spray-date").value || null,
+          create_case: true,
+        };
+        const data = await api("/api/plan", { method: "POST", body: JSON.stringify(body) });
+        const plan = data.plan;
+        const caseObj = data.case;
+        if (caseObj) setCaseId(caseObj.case_id);
+
+        document.getElementById("result").hidden = false;
+        const pill = document.getElementById("status-pill");
+        pill.textContent = plan.status;
+        pill.dataset.status = plan.status;
+
+        document.getElementById("det-out").textContent = JSON.stringify(
+          {
+            points: plan.points,
+            weather: plan.weather,
+            status: plan.status,
+            recommended_additions: plan.recommended_additions,
+            bulletin_actions: plan.bulletin_actions,
+            layers_deterministic: (plan.layers || {}).deterministic,
+          },
+          null,
+          2
+        );
+        document.getElementById("model-out").textContent = JSON.stringify(
+          {
+            model: plan.model || null,
+            layers_model: (plan.layers || {}).model,
+          },
+          null,
+          2
+        );
+        document.getElementById("case-line").textContent = caseObj
+          ? `Case ${caseObj.case_id} · status ${caseObj.status}`
+          : "No case created";
+        document.getElementById("to-confirm").href =
+          "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);
+      } catch (ex) {
+        err.hidden = false;
+        err.textContent = String(ex.message || ex);
+      }
+    });
+  </script>
+</body>
+</html>

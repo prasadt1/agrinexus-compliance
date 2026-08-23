@@ -33,7 +33,9 @@ def test_points_shortfall_recommends():
         ["mitigation_tracking"], required_points=3, menu=menu
     )
     assert adds
-    assert adds[-1]["shortfall_after"] == 0 or adds[0]["points"] >= 1
+    # Known shortfall → recommendations must close it
+    assert adds[-1]["shortfall_after"] == 0
+    assert adds[-1]["earned_after"] >= 3
 
 
 def test_weather_blocks_when_windy():
@@ -59,6 +61,9 @@ def test_plan_offline_windy_blocks():
     result = plan(offline=True, windy=True)
     assert result["status"] == "WEATHER_BLOCK"
     assert result["weather"]["weather_ok"] is False
+    # Wind over threshold forces weather_ok=false regardless of model layer
+    assert result["layers"]["deterministic"]
+    assert result.get("model") is None
 
 
 def test_interpret_offline_flags_human_when_thin():

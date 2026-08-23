@@ -5,6 +5,8 @@ __pycache__/
 .mypy_cache/
 .env
 *.pdf
-!fixtures/bulletins/.gitkeep
+!fixtures/bulletins/**/*.pdf
 .DS_Store
 out/
+data/
+receipts/

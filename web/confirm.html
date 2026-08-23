@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriNexus Compliance — Confirm</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <p class="brand">AgriNexus Compliance</p>
+    <nav>
+      <a href="/">Plan</a>
+      <a class="active" href="/confirm.html">Confirm</a>
+      <a href="/receipt.html">Receipt</a>
+    </nav>
+  </header>
+
+  <p class="disclaimer">
+    Decision-support / education demo. Not legal advice. The product label controls.
+    Confirmation is free-text (or Bedrock) — not a keyword “DONE” button.
+  </p>
+
+  <main class="layout">
+    <section>
+      <h1>Confirm</h1>
+      <p class="lede">Case loop: plan → remind → interpret what was done → receipt.</p>
+
+      <label>
+        Case ID
+        <input type="text" id="case-id" placeholder="from Plan screen" />
+      </label>
+
+      <div class="actions row">
+        <button type="button" id="btn-load">Load case</button>
+        <button type="button" id="btn-nudge-24" class="secondary">Simulate T+24 reminder</button>
+        <button type="button" id="btn-nudge-48" class="secondary">Simulate T+48 reminder</button>
+      </div>
+
+      <div id="case-summary" class="box det" hidden>
+        <h3>Case status</h3>
+        <pre id="case-out"></pre>
+      </div>
+
+      <form id="confirm-form" class="form">
+        <label>
+          What did you do? (free text)
+          <textarea id="reply" rows="5" placeholder="Printed Boone bulletin, kept grassed waterway, sprayed at 7am under 8 mph wind."></textarea>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="bedrock" /> Interpret with Bedrock (needs AWS)
+        </label>
+        <button type="submit">Submit confirmation</button>
+      </form>
+
+      <div id="error" class="error" hidden></div>
+
+      <div id="interp" class="box model" hidden>
+        <h3>Model interpretation</h3>
+        <pre id="interp-out"></pre>
+        <p class="actions">
+          <a id="to-receipt" class="button" href="/receipt.html">View receipt →</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    const caseInput = document.getElementById("case-id");
+    caseInput.value = getCaseId() || new URLSearchParams(location.search).get("case_id") || "";
+
+    async function refreshCase() {
+      const id = caseInput.value.trim();
+      if (!id) throw new Error("Enter a case ID");
+      setCaseId(id);
+      const data = await api("/api/cases/" + encodeURIComponent(id));
+      document.getElementById("case-summary").hidden = false;
+      document.getElementById("case-out").textContent = JSON.stringify(
+        {
+          case_id: data.case_id,
+          status: data.status,
+          events: data.events,
+        },
+        null,
+        2
+      );
+      return data;
+    }
+
+    document.getElementById("btn-load").addEventListener("click", async () => {
+      const err = document.getElementById("error");
+      err.hidden = true;
+      try {
+        await refreshCase();
+      } catch (ex) {
+        err.hidden = false;
+        err.textContent = String(ex.message || ex);
+      }
+    });
+
+    async function nudge(which) {
+      const err = document.getElementById("error");
+      err.hidden = true;
+      try {
+        const id = caseInput.value.trim();
+        if (!id) throw new Error("Enter a case ID");
+        await api("/api/cases/" + encodeURIComponent(id) + "/nudge", {
+          method: "POST",
+          body: JSON.stringify({ which }),
+        });
+        await refreshCase();
+      } catch (ex) {
+        err.hidden = false;
+        err.textContent = String(ex.message || ex);
+      }
+    }
+
+    document.getElementById("btn-nudge-24").addEventListener("click", () => nudge("T+24"));
+    document.getElementById("btn-nudge-48").addEventListener("click", () => nudge("T+48"));
+
+    document.getElementById("confirm-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const err = document.getElementById("error");
+      err.hidden = true;
+      try {
+        const id = caseInput.value.trim();
+        if (!id) throw new Error("Enter a case ID");
+        const text = document.getElementById("reply").value.trim();
+        if (!text) throw new Error("Enter free-text confirmation");
+        const data = await api("/api/cases/" + encodeURIComponent(id) + "/confirm", {
+          method: "POST",
+          body: JSON.stringify({
+            text,
+            bedrock: document.getElementById("bedrock").checked,
+          }),
+        });
+        document.getElementById("interp").hidden = false;
+        document.getElementById("interp-out").textContent = JSON.stringify(
+          {
+            status: data.status,
+            confirmation: data.confirmation,
+            events: data.events,
+          },
+          null,
+          2
+        );
+        document.getElementById("to-receipt").href =
+          "/receipt.html?case_id=" + encodeURIComponent(id);
+        await refreshCase();
+      } catch (ex) {
+        err.hidden = false;
+        err.textContent = String(ex.message || ex);
+      }
+    });
+
+    if (caseInput.value) {
+      refreshCase().catch(() => {});
+    }
+  </script>
+</body>
+</html>

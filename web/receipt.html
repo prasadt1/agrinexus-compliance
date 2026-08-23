@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AgriNexus Compliance — Receipt</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <p class="brand">AgriNexus Compliance</p>
+    <nav>
+      <a href="/">Plan</a>
+      <a href="/confirm.html">Confirm</a>
+      <a class="active" href="/receipt.html">Receipt</a>
+    </nav>
+  </header>
+
+  <p class="disclaimer">
+    Decision-support / education demo. Not legal advice. The product label controls.
+    Receipt includes simulated reminder events when you used Simulate T+24 / T+48.
+  </p>
+
+  <main class="layout">
+    <section>
+      <h1>Receipt</h1>
+      <label>
+        Case ID
+        <input type="text" id="case-id" />
+      </label>
+      <div class="actions row">
+        <button type="button" id="btn-load">Load receipt JSON</button>
+        <a id="dl-pdf" class="button secondary" href="#">Download PDF</a>
+        <a id="dl-json" class="button secondary" href="#">Download JSON</a>
+      </div>
+
+      <div id="error" class="error" hidden></div>
+
+      <div class="split" id="panels" hidden>
+        <article class="box det">
+          <h3>Deterministic on receipt</h3>
+          <pre id="det-out"></pre>
+        </article>
+        <article class="box model">
+          <h3>Model + events (incl. reminders)</h3>
+          <pre id="model-out"></pre>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    const caseInput = document.getElementById("case-id");
+    caseInput.value = getCaseId() || new URLSearchParams(location.search).get("case_id") || "";
+
+    function wireDownloads(id) {
+      document.getElementById("dl-pdf").href = "/api/cases/" + encodeURIComponent(id) + "/receipt.pdf";
+      document.getElementById("dl-json").href = "/api/cases/" + encodeURIComponent(id) + "/receipt.json";
+    }
+
+    document.getElementById("btn-load").addEventListener("click", async () => {
+      const err = document.getElementById("error");
+      err.hidden = true;
+      try {
+        const id = caseInput.value.trim();
+        if (!id) throw new Error("Enter a case ID");
+        setCaseId(id);
+        wireDownloads(id);
+        const data = await api("/api/cases/" + encodeURIComponent(id) + "/receipt");
+        document.getElementById("panels").hidden = false;
+        document.getElementById("det-out").textContent = JSON.stringify(
+          {
+            status: data.status,
+            points: data.points,
+            weather: data.weather,
+            honesty_split: data.honesty_split,
+          },
+          null,
+          2
+        );
+        document.getElementById("model-out").textContent = JSON.stringify(
+          {
+            confirmation: data.confirmation,
+            reminder_events: data.reminder_events,
+            events: data.events,
+            model: data.model,
+            citations: data.citations,
+          },
+          null,
+          2
+        );
+      } catch (ex) {
+        err.hidden = false;
+        err.textContent = String(ex.message || ex);
+      }
+    });
+
+    if (caseInput.value) {
+      wireDownloads(caseInput.value.trim());
+      document.getElementById("btn-load").click();
+    }
+  </script>
+</body>
+</html>
