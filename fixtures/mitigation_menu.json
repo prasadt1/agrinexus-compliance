@@ -1,11 +1,17 @@
 {
-  "retrieved_note": "EDUCATIONAL STUB — point values are illustrative, modeled on public EPA Mitigation Menu / extension examples (e.g. Iowa State ICM Mar 2026). Replace with values from https://www.epa.gov/endangered-species/mitigation-menu and record retrieval date before any real use.",
+  "retrieved_note": "Point values for the Boone County hypothetical field example published by Iowa State ICM (Anderson, 11 Mar 2026), which cites EPA’s Mitigation Menu / Runoff Points Calculator. Cross-check against https://www.epa.gov/endangered-species/mitigation-menu before any real use; EPA may update measures.",
   "source_urls": [
     "https://www.epa.gov/endangered-species/mitigation-menu",
     "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements"
   ],
-  "retrieved_approx": "2026-08-16",
+  "retrieved_approx": "2026-08-23",
   "practices": [
+    {
+      "id": "runoff_vulnerability_relief",
+      "name": "Mitigation relief — reduced pesticide runoff vulnerability county",
+      "points": 2,
+      "category": "relief"
+    },
     {
       "id": "mitigation_tracking",
       "name": "Mitigation tracking / recordkeeping",

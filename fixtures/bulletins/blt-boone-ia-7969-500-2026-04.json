@@ -1,0 +1,18 @@
+{
+  "fixture_id": "blt-boone-ia-7969-500-pending-pdf",
+  "county": "Boone",
+  "state": "IA",
+  "application_month": "2026-04",
+  "epa_reg_no": "7969-500",
+  "pula_active": false,
+  "pula_notes": "PENDING REAL PDF — download Printable Bulletin from Bulletins Live! Two for Boone County, IA + April 2026 + EPA Reg. No. 7969-500, save under fixtures/bulletins/, then set pula_active from the map/bulletin and replace this stub.",
+  "actions": [
+    "Obtain any applicable Endangered Species Protection Bulletin from Bulletins Live! Two within six months prior to or on the day of application (per Liberty ULTRA / 7969-500 label §12).",
+    "Save the printable bulletin with pesticide application records.",
+    "If the application site is inside a PULA, follow the bulletin instructions; if outside a PULA, still meet the label’s runoff/erosion point requirement unless an exemption applies."
+  ],
+  "source": "https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins",
+  "label_source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/007969-00500-20241206.pdf",
+  "retrieved": "2026-08-23",
+  "bulletin_pdf": null
+}

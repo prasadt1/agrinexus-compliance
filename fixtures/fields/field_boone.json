@@ -1,15 +1,17 @@
 {
-  "field_id": "boone-ia-demo-01",
-  "name": "Demo field — Boone County, IA",
+  "field_id": "boone-ia-isu-table1",
+  "name": "Hypothetical field — Boone County, IA (Iowa State ICM Table 1)",
   "state": "IA",
   "county": "Boone",
   "lat": 42.0667,
   "lon": -93.8802,
   "irrigated": false,
   "practices": [
+    "runoff_vulnerability_relief",
+    "mitigation_tracking",
     "non_irrigated",
-    "grassed_waterway",
-    "mitigation_tracking"
+    "grassed_waterway"
   ],
-  "notes": "Mirrors the style of Iowa State ICM public examples. Replace with a real partner field before pilot."
+  "notes": "Matches Table 1 in Meaghan Anderson, Iowa State ICM, 11 Mar 2026 (9 points with multi-category bonus). Replace with a partner field before a paid pilot.",
+  "source_url": "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements"
 }

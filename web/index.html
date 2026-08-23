@@ -35,19 +35,19 @@
     <dl class="summary-grid">
       <div>
         <dt>Field</dt>
-        <dd>Boone Demo Field · Boone County, Iowa</dd>
+        <dd>Boone County, Iowa (Iowa State ICM Table 1 example)</dd>
       </div>
       <div>
         <dt>Product</dt>
-        <dd>Demo Herbicide (educational stub)</dd>
+        <dd>Liberty ULTRA Herbicide</dd>
       </div>
       <div>
         <dt>EPA Reg. No.</dt>
-        <dd translate="no">DEMO-000001</dd>
+        <dd translate="no">7969-500</dd>
       </div>
       <div>
         <dt>Existing mitigation</dt>
-        <dd>Non-irrigated · Grassed waterway · Recordkeeping</dd>
+        <dd>Runoff-vulnerability relief · Non-irrigated · Grassed waterway · Recordkeeping</dd>
       </div>
     </dl>
 
@@ -140,9 +140,13 @@
         <details class="panel" style="margin-top:0.75rem">
           <summary>About this demo / fixture provenance</summary>
           <p class="muted">
-            Mitigation menu <code>retrieved_approx</code> <strong>2026-08-16</strong>.
-            Label and bulletin are educational stubs until replaced with a real product and Bulletins Live! Two printable.
-            See README for source URLs.
+            Mitigation menu / Boone Table 1 points aligned to Iowa State ICM (11 Mar 2026) +
+            <a href="https://www.epa.gov/endangered-species/mitigation-menu">EPA Mitigation Menu</a>;
+            <code>retrieved_approx</code> <strong>2026-08-23</strong>.
+            Label: Liberty ULTRA / EPA Reg. No. <span translate="no">7969-500</span>
+            (EPA PPLS PDF in <code>fixtures/labels/sources/</code>).
+            Bulletins Live! Two printable PDF for Boone + 7969-500 is still a manual download — see
+            <code>fixtures/bulletins/README.md</code>.
           </p>
         </details>
       </details>
@@ -217,7 +221,7 @@
 
         document.getElementById("wx-value").textContent = wx.weather_ok ? "OK" : "Blocked";
         document.getElementById("wx-sub").textContent =
-          `Wind ${wx.wind_mph ?? "—"} mph (demo limit 10 mph)`;
+          `Wind ${wx.wind_mph ?? "—"} mph (label limit 15 mph)`;
 
         const next = document.getElementById("next-value");
         const nextSub = document.getElementById("next-sub");

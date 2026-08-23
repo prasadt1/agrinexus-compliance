@@ -82,7 +82,7 @@ def score_field(
     if (
         auto_multi_category_bonus
         and bonus_id not in ids
-        and len(categories - {"bonus", "general"}) >= 2
+        and len(categories - {"bonus", "general", "relief"}) >= 2
         and bonus_id in idx
     ):
         prac = idx[bonus_id]

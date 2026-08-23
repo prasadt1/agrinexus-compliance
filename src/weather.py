@@ -59,4 +59,4 @@ def evaluate_weather(
 
 # Demo snapshots for offline CLI / tests
 FIXTURE_CALM = WeatherSnapshot(wind_mph=6.0, precip_inch_next_hour=0.0, source="fixture_calm")
-FIXTURE_WINDY = WeatherSnapshot(wind_mph=14.0, precip_inch_next_hour=0.0, source="fixture_windy")
+FIXTURE_WINDY = WeatherSnapshot(wind_mph=18.0, precip_inch_next_hour=0.0, source="fixture_windy")

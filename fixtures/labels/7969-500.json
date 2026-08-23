@@ -1,0 +1,16 @@
+{
+  "epa_reg_no": "7969-500",
+  "product_name": "Liberty ULTRA Herbicide",
+  "registrant_product_name": "BASF L-Glufosinate-Ammonium 211 Herbicide",
+  "required_runoff_points": 3,
+  "pula_extra_points": 0,
+  "requires_bulletins_live_two": true,
+  "max_wind_mph": 15,
+  "no_rain_hours_before": 1,
+  "excerpt_markdown_path": "fixtures/labels/7969-500.md",
+  "source_pdf": "fixtures/labels/sources/7969-500-epa-label-20241206.pdf",
+  "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/007969-00500-20241206.pdf",
+  "retrieved": "2026-08-23",
+  "extension_citation": "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements",
+  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Excerpted from the EPA-stamped label PDF; always verify against the current container label."
+}
