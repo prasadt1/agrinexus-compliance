@@ -6,6 +6,7 @@ __pycache__/
 .env
 *.pdf
 !fixtures/bulletins/**/*.pdf
+!fixtures/labels/sources/**/*.pdf
 .DS_Store
 out/
 data/
