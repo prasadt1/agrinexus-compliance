@@ -1,11 +1,11 @@
 const CASE_KEY = "agrinexus_compliance_case_id";
 
 const STATUS_LABELS = {
-  APPLY_OK: "Application conditions met",
-  WEATHER_BLOCK: "Do not apply yet: weather exceeds label limits",
-  POINTS_SHORT: "More mitigation is required",
+  APPLY_OK: "OK to apply as planned",
+  WEATHER_BLOCK: "Do not apply: weather exceeds label limits",
+  POINTS_SHORT: "Do not apply: more mitigation is required",
   PLANNED: "Plan ready — awaiting confirmation",
-  NUDGED: "Waiting for applicator confirmation",
+  NUDGED: "Reminder sent — awaiting confirmation",
   CONFIRMED: "Application record completed",
   EXPIRED: "Case expired",
   BLOCKED: "Application blocked",
@@ -62,6 +62,16 @@ function formatWhen(iso) {
     }).format(new Date(iso));
   } catch {
     return iso;
+  }
+}
+
+function formatSprayDate(isoDate) {
+  if (!isoDate) return "date not set";
+  try {
+    const d = new Date(isoDate + "T12:00:00");
+    return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(d);
+  } catch {
+    return isoDate;
   }
 }
 
@@ -131,4 +141,82 @@ function renderTimeline(container, events) {
     if (ev.detail) li.appendChild(detail);
     container.appendChild(li);
   });
+}
+
+/**
+ * Wire applicator flow stepper: 1 Plan → 2 Confirm → 3 Receipt.
+ * Steps 2–3 look unreachable until a case exists (unless current).
+ */
+function wireApplicatorStepper(current) {
+  const caseId = getCaseId();
+  const hasCase = !!caseId;
+  document.querySelectorAll("[data-stepper] .stepper-item").forEach((el) => {
+    const step = el.getAttribute("data-step");
+    const link = el.querySelector("a");
+    el.classList.toggle("is-current", step === current);
+    el.classList.toggle("is-done", stepOrder(step) < stepOrder(current) && hasCase);
+    if (!link) return;
+    if (step === "plan") {
+      link.href = "/check.html";
+      link.removeAttribute("aria-disabled");
+      el.classList.remove("is-locked");
+    } else if (step === "confirm") {
+      if (hasCase) {
+        link.href = "/confirm.html?case_id=" + encodeURIComponent(caseId);
+        link.removeAttribute("aria-disabled");
+        el.classList.remove("is-locked");
+      } else {
+        link.href = "#";
+        link.setAttribute("aria-disabled", "true");
+        el.classList.add("is-locked");
+      }
+    } else if (step === "receipt") {
+      if (hasCase) {
+        link.href = "/receipt.html?case_id=" + encodeURIComponent(caseId);
+        link.removeAttribute("aria-disabled");
+        el.classList.remove("is-locked");
+      } else {
+        link.href = "#";
+        link.setAttribute("aria-disabled", "true");
+        el.classList.add("is-locked");
+      }
+    }
+  });
+}
+
+function stepOrder(step) {
+  if (step === "plan") return 1;
+  if (step === "confirm") return 2;
+  if (step === "receipt") return 3;
+  return 0;
+}
+
+function buildPlanSummarySentence(plan, sprayDate) {
+  const field = plan.field || {};
+  const product = plan.product || {};
+  const pts = plan.points || {};
+  const wx = plan.weather || {};
+  const actions = plan.bulletin_actions || [];
+  const place = [field.county, field.state].filter(Boolean).join(", ") || "Field";
+  const productName = product.product_name || product.epa_reg_no || "product";
+  const dateBit = formatSprayDate(sprayDate);
+  const req = pts.required_points ?? "—";
+  const earned = pts.earned_points ?? "—";
+  let outcome = statusLabel(plan.status);
+  if (plan.status === "APPLY_OK") {
+    outcome = `your practices earn ${earned} — OK to apply`;
+  } else if (plan.status === "POINTS_SHORT") {
+    outcome = `your practices earn ${earned} — short by ${pts.shortfall} (do not apply yet)`;
+  } else if (plan.status === "WEATHER_BLOCK") {
+    outcome = `your practices earn ${earned}, but weather blocks application`;
+  }
+  const windBit = wx.weather_ok
+    ? "Wind forecast within limits."
+    : `Wind ${wx.wind_mph ?? "—"} mph exceeds label limits.`;
+  const n = actions.length;
+  const bulletinBit =
+    n === 0
+      ? "No extra bulletin actions listed."
+      : `${n} bulletin action${n === 1 ? "" : "s"} required before application.`;
+  return `${place} · ${productName} · planned spray ${dateBit}. ${req} mitigation points required, ${outcome}. ${windBit} ${bulletinBit}`;
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Inbox reply — AgriNexus Compliance</title>
+  <title>2 · Confirm — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -18,34 +18,36 @@
       <p class="brand">AgriNexus <span>Compliance</span></p>
     </div>
     <div class="top-actions">
-      <nav aria-label="Product areas">
-        <ol class="steps">
-          <li><a href="/">Partner</a></li>
-          <li><a href="/check.html">Applicator check</a></li>
-          <li><a class="active" href="/confirm.html">Inbox reply</a></li>
-          <li><a id="nav-receipt" href="/receipt.html">Record</a></li>
-        </ol>
-      </nav>
+      <a class="btn-tour" href="/">Partner board</a>
       <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
     </div>
   </header>
 
   <p class="disclaimer">
-    Decision-support / education product. Not legal advice. The product label controls.
+    Decision-support / education. Not legal advice. The product label controls.
     Production channel: SMS. This screen previews the message and collects the reply.
   </p>
 
+  <nav class="stepper" data-stepper aria-label="Applicator flow">
+    <ol>
+      <li class="stepper-item" data-step="plan"><a href="/check.html"><span class="step-num">1</span> Plan</a></li>
+      <li class="stepper-item is-current" data-step="confirm"><a href="/confirm.html"><span class="step-num">2</span> Confirm</a></li>
+      <li class="stepper-item is-locked" data-step="receipt"><a href="#" aria-disabled="true"><span class="step-num">3</span> Receipt</a></li>
+    </ol>
+  </nav>
+
   <main class="layout">
     <div id="gate" class="gate-empty" hidden>
-      <p>No live applicator session yet. Run a check first — that creates a case on the partner board.</p>
-      <a class="button" href="/check.html">Open applicator check</a>
+      <p>No plan yet. Complete Step 1 first — that opens Confirm and Receipt.</p>
+      <a class="button" href="/check.html">Go to Plan</a>
     </div>
 
     <div id="main-flow" hidden>
-      <h1 class="page-title">Reply to the reminder</h1>
+      <p class="eyebrow">Step 2 · Confirm</p>
+      <h1 class="page-title">Reply like an applicator would text</h1>
       <p class="lede">
-        In production this arrives as SMS. Here you see the outbound text, then answer
-        like an applicator would — in your own words.
+        In production this arrives as SMS. See the outbound reminder, then describe what you did
+        in plain language — not a one-click “done.”
       </p>
 
       <div class="phone-stage" data-tour="sms-thread">
@@ -65,7 +67,7 @@
               name="confirmation"
               rows="3"
               autocomplete="off"
-              placeholder="Reply: saved bulletin, kept grassed waterway, sprayed at 7am under 6 mph…"
+              placeholder="e.g., Sprayed this morning, kept the 30-ft buffer on the creek side, wind was light…"
             ></textarea>
             <button type="submit" id="btn-confirm" data-busy-label="Sending…">Send reply</button>
           </form>
@@ -97,10 +99,10 @@
             <ul class="timeline" id="timeline"></ul>
           </div>
           <div class="actions">
-            <button type="button" class="secondary" id="btn-nudge-24">Send day-1 SMS reminder</button>
-            <button type="button" class="secondary" id="btn-nudge-48">Send day-2 SMS reminder</button>
+            <button type="button" class="secondary" id="btn-nudge-24">Simulate day-after reminder (T+24)</button>
+            <button type="button" class="secondary" id="btn-nudge-48">Simulate day-2 reminder (T+48)</button>
           </div>
-          <p class="muted">Reminders update the partner board status to “waiting on reply.”</p>
+          <p class="muted">Reminders update partner-board status to “Reminder sent — awaiting confirmation.”</p>
         </div>
       </div>
 
@@ -112,21 +114,35 @@
           <h2 id="interp-title"></h2>
           <p id="interp-body"></p>
         </div>
+        <div class="split-explain">
+          <article class="explain calc">
+            <h3>Calculated by rules — auditable arithmetic</h3>
+            <p>Case status and reminder timing are tracked by system rules.</p>
+          </article>
+          <article class="explain ai">
+            <h3>AI-assisted — interprets your confirmation</h3>
+            <p id="interp-ai">—</p>
+          </article>
+        </div>
         <div class="actions">
-          <a id="to-receipt" class="button" href="/receipt.html">View application record →</a>
-          <a class="button ghost" href="/">Back to partner board</a>
+          <a id="to-receipt" class="button" href="/receipt.html">Continue to Receipt →</a>
+          <a class="button ghost" href="/">Partner board</a>
         </div>
       </section>
 
-      <details class="panel presenter">
-        <summary>Presenter / Bedrock</summary>
+      <details class="panel demo-controls">
+        <summary>Demo controls</summary>
         <label class="check">
           <input type="checkbox" id="bedrock" />
-          Interpret with Bedrock (needs AWS; leave unchecked for offline)
+          Plain-language explanations (AI) — needs AWS Bedrock; leave unchecked for offline
         </label>
         <p class="muted" translate="no" id="tech-case-id">—</p>
       </details>
     </div>
+
+    <footer class="page-footer muted">
+      Sample educational data · fixture dates in README
+    </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
@@ -134,6 +150,7 @@
   <script src="/tour.js"></script>
   <script>
     const caseId = resolveCaseId();
+    wireApplicatorStepper("confirm");
     const gate = document.getElementById("gate");
     const main = document.getElementById("main-flow");
 
@@ -167,7 +184,7 @@
       document.getElementById("sum-name").textContent = data.applicator_name || "Pilot applicator";
       document.getElementById("sum-phone").textContent = data.phone || "—";
       document.getElementById("sum-field").textContent =
-        `${field.field_id || "—"} · ${field.county || ""}, ${field.state || ""}`;
+        `${field.county || ""}, ${field.state || ""}`.replace(/^, |, $/g, "") || field.field_id || "—";
       document.getElementById("sum-product").textContent =
         `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
 
@@ -178,10 +195,9 @@
       setOutbound(data.outbound_preview);
       renderTimeline(document.getElementById("timeline"), data.events);
       document.getElementById("tech-case-id").textContent = data.case_id;
-      document.getElementById("nav-receipt").href =
-        "/receipt.html?case_id=" + encodeURIComponent(data.case_id);
       document.getElementById("to-receipt").href =
         "/receipt.html?case_id=" + encodeURIComponent(data.case_id);
+      wireApplicatorStepper("confirm");
       return data;
     }
 
@@ -209,7 +225,7 @@
         });
         setOutbound(data.outbound_preview);
         await refreshCase();
-        document.getElementById("live").textContent = "SMS reminder queued: " + which;
+        document.getElementById("live").textContent = statusLabel("NUDGED");
       } catch (ex) {
         showError(err, String(ex.message || ex));
       }
@@ -253,7 +269,9 @@
           conf.summary ||
           (needs
             ? "Reply was too thin. Ask for bulletin + practices + spray conditions."
-            : "Reply recorded. The partner board will show this applicator as confirmed.");
+            : "Reply recorded. Partner board will show this applicator as confirmed.");
+        document.getElementById("interp-ai").textContent =
+          `Interpretation layer: ${conf.layer || "offline"}. Bulletin: ${conf.bulletin_saved ?? "unclear"}. Applied: ${conf.applied ?? "unclear"}.`;
         live.textContent = document.getElementById("interp-title").textContent;
         document.getElementById("reply").value = "";
         section.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Application Record — AgriNexus Compliance</title>
+  <title>3 · Receipt — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -18,33 +18,35 @@
       <p class="brand">AgriNexus <span>Compliance</span></p>
     </div>
     <div class="top-actions">
-      <nav aria-label="Product areas">
-        <ol class="steps">
-          <li><a href="/">Partner</a></li>
-          <li><a href="/check.html">Applicator check</a></li>
-          <li><a id="nav-confirm" href="/confirm.html">Inbox reply</a></li>
-          <li><a class="active" href="/receipt.html">Record</a></li>
-        </ol>
-      </nav>
+      <a class="btn-tour" href="/">Partner board</a>
       <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
     </div>
   </header>
 
   <p class="disclaimer">
-    Decision-support / education demo. Not legal advice. The product label controls.
+    Decision-support / education. Not legal advice. The product label controls.
   </p>
+
+  <nav class="stepper" data-stepper aria-label="Applicator flow">
+    <ol>
+      <li class="stepper-item" data-step="plan"><a href="/check.html"><span class="step-num">1</span> Plan</a></li>
+      <li class="stepper-item" data-step="confirm"><a href="/confirm.html"><span class="step-num">2</span> Confirm</a></li>
+      <li class="stepper-item is-current" data-step="receipt"><a href="/receipt.html"><span class="step-num">3</span> Receipt</a></li>
+    </ol>
+  </nav>
 
   <main class="layout">
     <div id="gate" class="gate-empty" hidden>
-      <p>No application record is available yet. Start with a plan check.</p>
-      <a class="button" href="/">Check Application Plan</a>
+      <p>No application record yet. Complete Step 1 (Plan) first.</p>
+      <a class="button" href="/check.html">Go to Plan</a>
     </div>
 
     <div id="main-flow" hidden>
+      <p class="eyebrow">Step 3 · Receipt</p>
       <h1 class="page-title">Application record</h1>
       <p class="lede">
-        A dated summary of the plan, weather and points check, reminders, and applicator confirmation —
-        ready to download for educational review.
+        Dated summary for the program file — points, weather, reminders, confirmation.
+        <span class="sample-badge">Sample data — educational demo</span>
       </p>
 
       <div id="verdict" class="verdict" data-kind="ok" data-tour="receipt-verdict">
@@ -60,22 +62,23 @@
       <div id="error" class="error" role="alert" hidden></div>
       <p id="live" class="live" aria-live="polite"></p>
 
-      <div class="metric-row">
-        <div class="metric">
-          <span class="label">Mitigation points</span>
-          <span class="value" id="pts-value">—</span>
-          <span class="sub" id="pts-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Weather at plan</span>
-          <span class="value" id="wx-value">—</span>
-          <span class="sub" id="wx-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Reminders</span>
-          <span class="value" id="rem-value" style="font-size:1.1rem">—</span>
-          <span class="sub" id="rem-sub"></span>
-        </div>
+      <div class="human-cards">
+        <article class="human-card">
+          <h3>Mitigation points</h3>
+          <div class="points-grid">
+            <div><span class="muted">Required</span><strong id="pts-req">—</strong></div>
+            <div><span class="muted">You have</span><strong id="pts-have">—</strong></div>
+            <div><span class="muted">Shortfall</span><strong id="pts-short">—</strong></div>
+          </div>
+        </article>
+        <article class="human-card">
+          <h3>Weather at plan</h3>
+          <p id="wx-human">—</p>
+        </article>
+        <article class="human-card">
+          <h3>Reminders</h3>
+          <p id="rem-human">—</p>
+        </article>
       </div>
 
       <dl class="summary-grid">
@@ -110,25 +113,24 @@
 
       <div class="split-explain">
         <article class="explain calc">
-          <h3>Calculated from published rules</h3>
-          <p id="calc-copy">Point arithmetic and weather gate.</p>
+          <h3>Calculated by rules — auditable arithmetic</h3>
+          <p id="calc-copy">Points and weather gate.</p>
         </article>
         <article class="explain ai">
-          <h3>AI-assisted</h3>
-          <p id="ai-copy">Interpretation layer when used.</p>
+          <h3>AI-assisted — interprets confirmation</h3>
+          <p id="ai-copy">When used.</p>
         </article>
-      </div>
-
-      <div class="record-block">
-        <h2>Fixture citations</h2>
-        <ul class="list-plain" id="cite-list"></ul>
       </div>
 
       <details class="panel">
-        <summary>Technical details</summary>
+        <summary>View technical detail (JSON)</summary>
         <pre class="tech-pre" id="tech-out"></pre>
       </details>
     </div>
+
+    <footer class="page-footer muted">
+      Sample educational data · fixture dates in README
+    </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
@@ -136,6 +138,7 @@
   <script src="/tour.js"></script>
   <script>
     const caseId = resolveCaseId();
+    wireApplicatorStepper("receipt");
     const gate = document.getElementById("gate");
     const main = document.getElementById("main-flow");
 
@@ -145,8 +148,6 @@
     } else {
       gate.hidden = true;
       main.hidden = false;
-      document.getElementById("nav-confirm").href =
-        "/confirm.html?case_id=" + encodeURIComponent(caseId);
       document.getElementById("dl-pdf").href =
         "/api/cases/" + encodeURIComponent(caseId) + "/receipt.pdf";
       document.getElementById("dl-json").href =
@@ -166,38 +167,32 @@
           const kind =
             data.status === "CONFIRMED" ? "ok" :
             data.status === "NUDGED" || (conf && conf.needs_human) ? "warn" : "ok";
-          const verdict = document.getElementById("verdict");
-          verdict.dataset.kind = kind;
+          document.getElementById("verdict").dataset.kind = kind;
           document.getElementById("verdict-title").textContent = statusLabel(data.status);
           document.getElementById("verdict-body").textContent =
             data.status === "CONFIRMED"
-              ? "This educational record includes the plan check, any reminders, and the applicator confirmation."
+              ? "This record includes the plan check, any reminders, and the applicator confirmation."
               : data.status === "NUDGED"
-                ? "A reminder was sent; confirmation is still outstanding or needs more detail."
+                ? "Reminder sent — awaiting confirmation."
                 : "Plan is on file. Complete confirmation to close the loop.";
 
-          document.getElementById("pts-value").textContent =
-            `${points.earned_points ?? "—"} / ${points.required_points ?? "—"}`;
-          document.getElementById("pts-sub").textContent =
-            points.shortfall > 0 ? `Short by ${points.shortfall}` : "Requirement met at plan time";
-
-          document.getElementById("wx-value").textContent = weather.weather_ok ? "OK" : "Blocked";
-          document.getElementById("wx-sub").textContent =
-            `Wind ${weather.wind_mph ?? "—"} mph`;
-
+          document.getElementById("pts-req").textContent = points.required_points ?? "—";
+          document.getElementById("pts-have").textContent = points.earned_points ?? "—";
+          document.getElementById("pts-short").textContent = points.shortfall ?? "—";
+          document.getElementById("wx-human").textContent = weather.weather_ok
+            ? `Wind ${weather.wind_mph ?? "—"} mph — within limits at plan time.`
+            : `Blocked: wind ${weather.wind_mph ?? "—"} mph.`;
           const rems = data.reminder_events || [];
-          document.getElementById("rem-value").textContent = rems.length
-            ? rems.map((r) => r.which || "reminder").join(", ")
-            : "None";
-          document.getElementById("rem-sub").textContent = rems.length
-            ? "Shown on this record"
-            : "Use presenter controls on Confirm to simulate";
+          document.getElementById("rem-human").textContent = rems.length
+            ? rems.map((r) => r.which || "reminder").join(", ") + " recorded on this receipt"
+            : "None yet — use Confirm to simulate day-after reminder (T+24)";
 
           document.getElementById("sum-field").textContent =
-            `${field.field_id || "—"} · ${field.county || ""}, ${field.state || ""}`;
+            `${field.county || ""}, ${field.state || ""}`.replace(/^, |, $/g, "") || field.field_id || "—";
           document.getElementById("sum-product").textContent =
             `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
-          document.getElementById("sum-date").textContent = data.planned_spray_date || "Not set";
+          document.getElementById("sum-date").textContent =
+            data.planned_spray_date ? formatSprayDate(data.planned_spray_date) : "Not set";
           document.getElementById("sum-gen").textContent = formatWhen(data.receipt_generated_at);
 
           const confSum = document.getElementById("conf-summary");
@@ -205,7 +200,7 @@
           if (conf) {
             confSum.textContent =
               conf.summary ||
-              `Bulletin: ${conf.bulletin_saved ?? "unclear"} · Applied: ${conf.applied ?? "unclear"} · Needs review: ${conf.needs_human ?? "—"}`;
+              `Bulletin: ${conf.bulletin_saved ?? "unclear"} · Applied: ${conf.applied ?? "unclear"}`;
             if (conf.raw_text) {
               confRaw.hidden = false;
               confRaw.textContent = "Applicator reply: “" + conf.raw_text + "”";
@@ -213,22 +208,11 @@
           }
 
           renderTimeline(document.getElementById("timeline"), data.events);
-
           document.getElementById("calc-copy").textContent =
-            `Deterministic layers: ${((data.honesty_split || {}).deterministic || []).join(", ") || "points, weather"}.`;
-          document.getElementById("ai-copy").textContent =
-            conf
-              ? `Confirmation layer: ${conf.layer || "—"}. Model layers: ${((data.honesty_split || {}).model || []).join(", ") || "none"}.`
-              : "No confirmation interpretation yet.";
-
-          const cites = document.getElementById("cite-list");
-          cites.innerHTML = "";
-          (data.citations || []).forEach((c) => {
-            const li = document.createElement("li");
-            li.textContent = c;
-            cites.appendChild(li);
-          });
-
+            "Point arithmetic and weather gate are rule-based (auditable).";
+          document.getElementById("ai-copy").textContent = conf
+            ? `Confirmation interpreted via ${conf.layer || "rules/model"}.`
+            : "No confirmation interpretation yet.";
           document.getElementById("tech-out").textContent = JSON.stringify(data, null, 2);
           live.textContent = "Record loaded: " + statusLabel(data.status);
         } catch (ex) {

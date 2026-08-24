@@ -594,6 +594,155 @@ details.panel[open] > summary::before { content: "▾ "; }
 
 .gate-empty p { margin: 0 0 0.75rem; }
 
+.sample-badge {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  vertical-align: middle;
+  background: #efe8da;
+  color: #5a4a20;
+  border: 1px solid #e0d4ad;
+}
+
+.stepper {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 0.65rem 1.25rem;
+}
+
+.stepper ol {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 820px;
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.stepper-item a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stepper-item.is-current a {
+  background: var(--accent);
+  color: #fff;
+}
+
+.stepper-item.is-done a {
+  color: var(--accent);
+  background: var(--accent-tint);
+}
+
+.stepper-item.is-locked a {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.stepper-item.is-current .step-num {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.verdict-summary {
+  margin: 0.5rem 0 0 !important;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  max-width: 65ch;
+}
+
+.human-cards {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.human-card {
+  padding: 1rem 1.1rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.human-card h3 {
+  margin: 0 0 0.55rem;
+  font-size: 1rem;
+  font-family: "Fraunces", Georgia, serif;
+}
+
+.human-card h4 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.88rem;
+}
+
+.points-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+  margin-bottom: 0.65rem;
+}
+
+.points-grid strong {
+  display: block;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checklist li {
+  position: relative;
+  padding: 0.35rem 0 0.35rem 1.6rem;
+  line-height: 1.4;
+  border-bottom: 1px solid var(--line);
+}
+
+.checklist li:last-child { border-bottom: none; }
+
+.checklist li::before {
+  content: "☐";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.demo-controls {
+  margin-top: 1rem;
+  border-style: dashed;
+}
+
+.page-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+
 .table-wrap { overflow-x: auto; margin-top: 0.75rem; }
 
 .cohort-table {

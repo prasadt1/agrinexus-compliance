@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Check Application — AgriNexus Compliance</title>
+  <title>1 · Plan — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -11,88 +11,69 @@
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/tour-theme.css" />
 </head>
-<body data-tour-page="check">
+<body data-tour-page="check" data-tour-auto="false">
   <header class="top">
     <div class="brand-wrap">
       <div class="brand-mark" aria-hidden="true">A</div>
       <p class="brand">AgriNexus <span>Compliance</span></p>
     </div>
     <div class="top-actions">
-      <nav aria-label="Product areas" data-tour="steps">
-        <ol class="steps">
-          <li><a href="/">Partner</a></li>
-          <li><a class="active" href="/check.html">Applicator check</a></li>
-          <li><a id="nav-confirm" href="/confirm.html">Inbox reply</a></li>
-          <li><a id="nav-receipt" href="/receipt.html">Record</a></li>
-        </ol>
-      </nav>
-      <button type="button" class="btn-tour" data-tour-trigger>
-        Take the tour
-      </button>
+      <a class="btn-tour" href="/">Partner board</a>
+      <button type="button" class="btn-tour" data-tour-trigger>Take the tour</button>
     </div>
   </header>
 
   <p class="disclaimer">
-    Decision-support / education demo. Not legal advice. The product label controls.
+    Decision-support / education. Not legal advice. The product label controls.
   </p>
+
+  <nav class="stepper" data-stepper aria-label="Applicator flow">
+    <ol>
+      <li class="stepper-item is-current" data-step="plan"><a href="/check.html"><span class="step-num">1</span> Plan</a></li>
+      <li class="stepper-item is-locked" data-step="confirm"><a href="#" aria-disabled="true"><span class="step-num">2</span> Confirm</a></li>
+      <li class="stepper-item is-locked" data-step="receipt"><a href="#" aria-disabled="true"><span class="step-num">3</span> Receipt</a></li>
+    </ol>
+  </nav>
 
   <main class="layout">
     <section class="welcome" data-tour="welcome">
-      <p class="eyebrow">Applicator · one field session</p>
+      <p class="eyebrow">Step 1 · Plan</p>
       <h1>Can I spray this field with this product?</h1>
-      <p class="lede">
-        Answer for Boone + Liberty ULTRA: mitigation points, weather against the label,
-        and what to do with your Bulletins Live! bulletin — then you join the partner cohort board.
+      <p class="lede" data-tour="summary" id="demo-pack">
+        Boone County, Iowa · Liberty ULTRA · EPA Reg. No. <span translate="no">7969-500</span>
+        <span class="sample-badge">Sample data — educational demo</span>
       </p>
-      <p class="bridge" data-tour="bridge">
-        <strong>After this check:</strong> the partner can send you an SMS reminder.
-        You reply in plain language on the Inbox page. That is the product loop — not a static handout.
-      </p>
-      <div class="actions">
-        <button type="button" class="button ghost" id="scroll-to-check">Jump to check</button>
-        <a class="button ghost" href="/">Back to partner board</a>
-      </div>
     </section>
 
-    <dl class="summary-grid" data-tour="summary" id="demo-pack">
-      <div>
-        <dt>Field</dt>
-        <dd>Boone County, Iowa (Iowa State ICM Table 1)</dd>
-      </div>
-      <div>
-        <dt>Product</dt>
-        <dd>Liberty ULTRA Herbicide</dd>
-      </div>
-      <div>
-        <dt>EPA Reg. No.</dt>
-        <dd translate="no">7969-500</dd>
-      </div>
-      <div>
-        <dt>Bulletin</dt>
-        <dd>August 2026 · no extra PULA in map view</dd>
-      </div>
-    </dl>
-
-    <div class="split-explain" data-tour="honesty-preview">
-      <article class="explain calc">
-        <h3>Calculated from published rules</h3>
-        <p>Mitigation points and weather limits come from the label and EPA menu — not from AI.</p>
-      </article>
-      <article class="explain ai">
-        <h3>AI-assisted (optional)</h3>
-        <p>Reading label/bulletin language and free-text confirmation. Offline demo works without AWS.</p>
-      </article>
-    </div>
-
-    <form id="plan-form" class="form">
+    <form id="plan-form" class="form" data-tour="check-cta">
       <label>
         Planned spray date
         <input type="date" id="spray-date" name="planned_spray_date" autocomplete="off" />
       </label>
-      <div class="actions" data-tour="check-cta">
-        <button type="submit" id="btn-plan" data-busy-label="Checking…">Check Application Plan</button>
+      <label>
+        Forecast scenario
+        <select id="weather-scenario" name="weather_scenario">
+          <option value="calm" selected>Calm (fixture) — within label wind limits</option>
+          <option value="windy">Windy (fixture) — shows the weather gate</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button type="submit" id="btn-plan" data-busy-label="Checking…">Check this application</button>
       </div>
     </form>
+
+    <details class="panel demo-controls">
+      <summary>Demo controls</summary>
+      <p class="muted">For walkthroughs and technical reviewers. Hidden from the main story.</p>
+      <label class="check">
+        <input type="checkbox" id="bedrock" />
+        Plain-language explanations (AI) — needs AWS Bedrock; offline mode skips this
+      </label>
+      <p class="muted" style="margin-top:0.75rem">
+        Fixtures retrieved ~2026-08-23 · Liberty ULTRA label + August 2026 BLT printable in
+        <code>fixtures/</code>. See README for source URLs.
+      </p>
+    </details>
 
     <div id="error" class="error" role="alert" hidden></div>
     <p id="live" class="live" aria-live="polite"></p>
@@ -100,108 +81,72 @@
     <section id="result" hidden>
       <div id="verdict" class="verdict" data-kind="ok" data-tour="verdict">
         <h2 id="verdict-title"></h2>
-        <p id="verdict-body"></p>
+        <p id="verdict-summary" class="verdict-summary"></p>
       </div>
 
-      <div class="metric-row">
-        <div class="metric">
-          <span class="label">Mitigation points</span>
-          <span class="value" id="pts-value">—</span>
-          <span class="sub" id="pts-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Weather</span>
-          <span class="value" id="wx-value">—</span>
-          <span class="sub" id="wx-sub"></span>
-        </div>
-        <div class="metric">
-          <span class="label">Next step</span>
-          <span class="value" id="next-value" style="font-size:1rem;line-height:1.3">—</span>
-          <span class="sub" id="next-sub"></span>
-        </div>
+      <div class="human-cards">
+        <article class="human-card" id="points-card">
+          <h3>Mitigation points</h3>
+          <div class="points-grid">
+            <div><span class="muted">Required</span><strong id="pts-req">—</strong></div>
+            <div><span class="muted">You have</span><strong id="pts-have">—</strong></div>
+            <div><span class="muted">Shortfall</span><strong id="pts-short">—</strong></div>
+          </div>
+          <ul class="list-plain" id="credited-list"></ul>
+          <div id="adds-block" hidden>
+            <h4>Recommended additions</h4>
+            <ul class="list-plain" id="adds-list"></ul>
+          </div>
+        </article>
+
+        <article class="human-card" id="weather-card">
+          <h3>Weather</h3>
+          <p id="wx-human"></p>
+        </article>
+
+        <article class="human-card" id="bulletin-card">
+          <h3>Bulletin actions</h3>
+          <ul class="checklist" id="bulletin-list"></ul>
+        </article>
       </div>
 
-      <div class="record-block">
-        <h2>Before you apply</h2>
-        <ul class="list-plain" id="bulletin-list"></ul>
-      </div>
-
-      <div class="record-block" id="adds-block" hidden>
-        <h2>Recommended additions</h2>
-        <ul class="list-plain" id="adds-list"></ul>
-      </div>
-
-      <div class="split-explain">
+      <div class="split-explain" data-tour="honesty-preview">
         <article class="explain calc">
-          <h3>Calculated from published rules</h3>
-          <p id="calc-copy"></p>
+          <h3>Calculated by rules — auditable arithmetic</h3>
+          <p id="calc-copy">Points, wind thresholds, and dates — not AI.</p>
         </article>
         <article class="explain ai">
-          <h3>AI-assisted (when enabled)</h3>
-          <p id="ai-copy"></p>
+          <h3>AI-assisted — reads label and bulletin language</h3>
+          <p id="ai-copy">Suggests practice combinations and interprets confirmation when enabled.</p>
         </article>
       </div>
 
       <div class="actions">
-        <a id="to-confirm" class="button" href="/confirm.html">Open SMS inbox →</a>
+        <a id="to-confirm" class="button" href="/confirm.html">Continue to Confirm →</a>
       </div>
 
       <details class="panel">
-        <summary>How this was determined</summary>
-        <p class="muted">Honesty split and fixture citations for reviewers.</p>
+        <summary>View technical detail (JSON)</summary>
+        <p class="muted">Raw deterministic / model payloads for reviewers.</p>
         <pre class="tech-pre" id="how-out"></pre>
       </details>
     </section>
 
-    <section class="presenter">
-      <details class="panel">
-        <summary>Presenter controls</summary>
-        <p class="muted">Hidden during outreach demos. For walkthroughs and testing only.</p>
-        <label class="check">
-          <input type="checkbox" id="windy" />
-          Use blocked-weather scenario (wind above label limit)
-        </label>
-        <label class="check">
-          <input type="checkbox" id="bedrock" />
-          Enrich plan with Bedrock (needs AWS model access)
-        </label>
-        <details class="panel" style="margin-top:0.75rem">
-          <summary>About this demo / fixture provenance</summary>
-          <p class="muted">
-            Liberty ULTRA / <span translate="no">7969-500</span>, Boone Table 1 points,
-            August 2026 BLT printable in <code>fixtures/</code>. See README for URLs and dates.
-          </p>
-        </details>
-      </details>
-    </section>
+    <footer class="page-footer muted">
+      Sample educational data · Boone / Liberty ULTRA (7969-500) · fixture dates in README
+    </footer>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
   <script src="/app.js"></script>
   <script src="/tour.js"></script>
   <script>
-    document.getElementById("scroll-to-check").addEventListener("click", function () {
-      document.getElementById("demo-pack").scrollIntoView({ behavior: "smooth", block: "start" });
-      document.getElementById("btn-plan").focus();
-    });
+    wireApplicatorStepper("plan");
 
-    function syncNav() {
-      const id = getCaseId();
-      const c = document.getElementById("nav-confirm");
-      const r = document.getElementById("nav-receipt");
-      if (id) {
-        c.href = "/confirm.html?case_id=" + encodeURIComponent(id);
-        r.href = "/receipt.html?case_id=" + encodeURIComponent(id);
-        c.removeAttribute("aria-disabled");
-        r.removeAttribute("aria-disabled");
-      }
-    }
-    syncNav();
-
-    function verdictKind(status) {
-      if (status === "APPLY_OK") return "ok";
-      if (status === "POINTS_SHORT") return "warn";
-      return "block";
+    // Optional ?dev=1 opens demo controls
+    if (new URLSearchParams(location.search).get("dev") === "1") {
+      const panel = document.querySelector(".demo-controls");
+      if (panel) panel.open = true;
     }
 
     document.getElementById("plan-form").addEventListener("submit", async (e) => {
@@ -211,67 +156,46 @@
       const live = document.getElementById("live");
       showError(err, "");
       setBusy(btn, true);
+      const sprayDate = document.getElementById("spray-date").value || null;
+      const windy = document.getElementById("weather-scenario").value === "windy";
       try {
         const data = await api("/api/plan", {
           method: "POST",
           body: JSON.stringify({
-            windy: document.getElementById("windy").checked,
+            windy,
             bedrock: document.getElementById("bedrock").checked,
-            planned_spray_date: document.getElementById("spray-date").value || null,
+            planned_spray_date: sprayDate,
             create_case: true,
           }),
         });
         const plan = data.plan;
         const caseObj = data.case;
         if (caseObj) setCaseId(caseObj.case_id);
-        syncNav();
+        wireApplicatorStepper("plan");
 
         document.getElementById("result").hidden = false;
-        const kind = verdictKind(plan.status);
+        const kind =
+          plan.status === "APPLY_OK" ? "ok" :
+          plan.status === "POINTS_SHORT" ? "warn" : "block";
         const verdict = document.getElementById("verdict");
         verdict.dataset.kind = kind;
         document.getElementById("verdict-title").textContent = statusLabel(plan.status);
+        document.getElementById("verdict-summary").textContent =
+          buildPlanSummarySentence(plan, sprayDate);
 
         const pts = plan.points || {};
         const wx = plan.weather || {};
-        let body = "";
-        if (plan.status === "APPLY_OK") {
-          body = "Documented mitigation meets the required points, and weather is within the label limits.";
-        } else if (plan.status === "WEATHER_BLOCK") {
-          body = (wx.weather_block_reasons || []).join(" ") || "Weather conditions do not allow application right now.";
-        } else {
-          body = "Add practices from the mitigation menu until the shortfall is closed.";
-        }
-        document.getElementById("verdict-body").textContent = body;
+        document.getElementById("pts-req").textContent = pts.required_points ?? "—";
+        document.getElementById("pts-have").textContent = pts.earned_points ?? "—";
+        document.getElementById("pts-short").textContent =
+          pts.shortfall != null ? pts.shortfall : "—";
 
-        document.getElementById("pts-value").textContent =
-          `${pts.earned_points ?? "—"} / ${pts.required_points ?? "—"}`;
-        document.getElementById("pts-sub").textContent =
-          pts.shortfall > 0 ? `Short by ${pts.shortfall} point(s)` : "Requirement met";
-
-        document.getElementById("wx-value").textContent = wx.weather_ok ? "OK" : "Blocked";
-        document.getElementById("wx-sub").textContent =
-          `Wind ${wx.wind_mph ?? "—"} mph (label limit 15 mph)`;
-
-        const next = document.getElementById("next-value");
-        const nextSub = document.getElementById("next-sub");
-        if (plan.status === "APPLY_OK") {
-          next.textContent = "Save bulletin, then confirm";
-          nextSub.textContent = "Continue to the confirmation step after application";
-        } else if (plan.status === "WEATHER_BLOCK") {
-          next.textContent = "Wait for safer weather";
-          nextSub.textContent = "Re-check before spraying";
-        } else {
-          next.textContent = "Add mitigation";
-          nextSub.textContent = "See recommended practices below";
-        }
-
-        const bl = document.getElementById("bulletin-list");
-        bl.innerHTML = "";
-        (plan.bulletin_actions || []).forEach((a) => {
+        const credited = document.getElementById("credited-list");
+        credited.innerHTML = "";
+        (pts.credited || []).forEach((c) => {
           const li = document.createElement("li");
-          li.textContent = a;
-          bl.appendChild(li);
+          li.textContent = `${c.name} — ${c.points} pt`;
+          credited.appendChild(li);
         });
 
         const adds = plan.recommended_additions || [];
@@ -282,21 +206,33 @@
           addsBlock.hidden = false;
           adds.forEach((a) => {
             const li = document.createElement("li");
-            li.textContent = `${a.name} (+${a.points} pt) → ${a.shortfall_after === 0 ? "closes shortfall" : `shortfall then ${a.shortfall_after}`}`;
+            li.textContent = `+${a.points} — ${a.name}`;
             addsList.appendChild(li);
           });
         } else {
           addsBlock.hidden = true;
         }
 
+        document.getElementById("wx-human").textContent = wx.weather_ok
+          ? `Wind ${wx.wind_mph ?? "—"} mph — within the label limit (15 mph). Forecast scenario: ${windy ? "Windy" : "Calm"}.`
+          : `Do not apply: wind ${wx.wind_mph ?? "—"} mph exceeds the label limit (15 mph). ${(wx.weather_block_reasons || []).join(" ")}`;
+
+        const bl = document.getElementById("bulletin-list");
+        bl.innerHTML = "";
+        (plan.bulletin_actions || []).forEach((a) => {
+          const li = document.createElement("li");
+          li.textContent = a;
+          bl.appendChild(li);
+        });
+
         document.getElementById("calc-copy").textContent =
-          `Points credited: ${(practiceNames(pts.credited) || []).join(", ") || "none"}. ` +
+          `Credited practices: ${(practiceNames(pts.credited) || []).join(", ") || "none"}. ` +
           `Weather gate is rule-based (${wx.weather_ok ? "pass" : "fail"}).`;
 
         const model = plan.model;
         document.getElementById("ai-copy").textContent = model
-          ? (model.summary || "Model summary available in technical details.")
-          : "Offline demo: no AI summary. Calculated rules still apply.";
+          ? (model.summary || "Model summary available in technical detail.")
+          : "Offline mode: no AI summary. Calculated rules still apply.";
 
         document.getElementById("how-out").textContent = JSON.stringify(
           {
@@ -315,7 +251,6 @@
 
         document.getElementById("to-confirm").href =
           "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);
-        document.getElementById("to-confirm").textContent = "Open SMS inbox →";
 
         live.textContent = statusLabel(plan.status);
         document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });

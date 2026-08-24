@@ -77,9 +77,9 @@
     check: [
       {
         popover: {
-          title: "Applicator check",
+          title: "Step 1 — Plan",
           description:
-            "One real question: can this applicator spray this Boone field with Liberty ULTRA today? Points + weather + bulletin actions.",
+            "One question for an extension audience: can this applicator spray this Boone field with Liberty ULTRA? Points, weather, and bulletin actions — in plain language.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -91,26 +91,26 @@
       {
         element: '[data-tour="summary"]',
         popover: {
-          title: "Real fixtures",
+          title: "Sample field pack",
           description:
-            "EPA Reg. No. 7969-500, Iowa State Boone points table, August 2026 Bulletins Live! printable — not a fake DEMO number.",
+            "Real EPA Reg. No. 7969-500 and August 2026 bulletin fixtures, marked as sample educational data — not a fake DEMO number.",
         },
       },
       {
         element: '[data-tour="check-cta"]',
         popover: {
-          title: "Run the check",
+          title: "Check this application",
           description:
-            "Creates a live case on the partner board. Then open Inbox reply to see the SMS and send a confirmation.",
+            "Pick a forecast scenario (calm vs windy) to show the weather gate, then run the plan. Confirm and Receipt unlock after.",
         },
       },
     ],
     confirm: [
       {
         popover: {
-          title: "SMS inbox (US channel)",
+          title: "Step 2 — Confirm",
           description:
-            "Production sends Twilio SMS. This phone preview is the applicator experience: reminder out, free-text reply in.",
+            "SMS-style reminder out; applicator replies in their own words. Simulate day-after reminder (T+24) for the video.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -122,25 +122,18 @@
       {
         element: '[data-tour="sms-thread"]',
         popover: {
-          title: "The message thread",
+          title: "What they would text",
           description:
-            "Send a day-1 reminder to flip status to waiting, then type a real reply. No keyword DONE button.",
-        },
-      },
-      {
-        element: '[data-tour="timeline"]',
-        popover: {
-          title: "Logged for the partner",
-          description: "Every reminder and reply lands on the receipt and the cohort board.",
+            "Placeholder examples like keeping a creek-side buffer — not keyword DONE.",
         },
       },
     ],
     receipt: [
       {
         popover: {
-          title: "Application record",
+          title: "Step 3 — Receipt",
           description:
-            "The artifact for the program file: points, weather, SMS reminders, confirmation, fixture citations.",
+            "Standalone record for screenshots and the outreach one-pager: status, points, weather, timeline, PDF download.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -150,17 +143,10 @@
         },
       },
       {
-        element: '[data-tour="receipt-verdict"]',
-        popover: {
-          title: "Status first",
-          description: "Plain-language status before any technical detail.",
-        },
-      },
-      {
         element: '[data-tour="download-pdf"]',
         popover: {
           title: "Download the PDF",
-          description: "Primary takeaway for outreach and pilots.",
+          description: "Primary takeaway for outreach emails.",
         },
       },
     ],
