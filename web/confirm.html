@@ -47,10 +47,15 @@
       <h1 class="page-title">Reply like an applicator would text</h1>
       <p class="lede">
         In production this arrives as SMS. See the outbound reminder, then describe what you did
-        in plain language — not a one-click “done.”
+        in plain language — not a one-click “done.” Or use the secure-link checklist.
       </p>
 
-      <div class="phone-stage" data-tour="sms-thread">
+      <div class="confirm-tabs" role="tablist" aria-label="Confirmation method">
+        <button type="button" class="tab is-active" role="tab" id="tab-sms" aria-selected="true" data-tab="sms">SMS reply</button>
+        <button type="button" class="tab" role="tab" id="tab-checklist" aria-selected="false" data-tab="checklist">Confirm by checklist</button>
+      </div>
+
+      <div class="phone-stage" data-tour="sms-thread" id="panel-sms">
         <div class="phone">
           <div class="phone-notch" aria-hidden="true"></div>
           <div class="phone-header">
@@ -107,6 +112,24 @@
             Advancing the clock sends reminders and can expire a case with no reply.
           </p>
         </div>
+      </div>
+
+      <div id="panel-checklist" hidden>
+        <form id="checklist-form" class="form record-block">
+          <h2>Confirm by checklist</h2>
+          <p class="muted">Deterministic path — verifies against the plan offline (no AI).</p>
+          <label class="check"><input type="checkbox" id="cl-bulletin" checked /> Bulletin saved with records</label>
+          <label class="check"><input type="checkbox" id="cl-applied" checked /> Applied / sprayed as planned</label>
+          <label>Wind at application (mph)
+            <input type="number" id="cl-wind" value="6" min="0" max="40" step="1" />
+          </label>
+          <fieldset>
+            <legend>Practices in place at application</legend>
+            <label class="check"><input type="checkbox" id="cl-gw" checked /> Grassed waterway</label>
+            <label class="check"><input type="checkbox" id="cl-track" checked /> Mitigation tracking / recordkeeping</label>
+          </fieldset>
+          <button type="submit" id="btn-checklist" data-busy-label="Checking…">Submit checklist</button>
+        </form>
       </div>
 
       <div id="error" class="error" role="alert" hidden></div>
@@ -253,6 +276,61 @@
     document.getElementById("btn-advance-expiry").addEventListener("click", () => advanceClock(72));
     refreshClock();
 
+    document.querySelectorAll(".confirm-tabs .tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".confirm-tabs .tab").forEach((b) => {
+          b.classList.toggle("is-active", b === btn);
+          b.setAttribute("aria-selected", b === btn ? "true" : "false");
+        });
+        const which = btn.getAttribute("data-tab");
+        document.getElementById("panel-sms").hidden = which !== "sms";
+        document.getElementById("panel-checklist").hidden = which !== "checklist";
+      });
+    });
+
+    document.getElementById("checklist-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const err = document.getElementById("error");
+      const btn = document.getElementById("btn-checklist");
+      const live = document.getElementById("live");
+      showError(err, "");
+      const practices = [];
+      if (document.getElementById("cl-gw").checked) practices.push("grassed_waterway");
+      if (document.getElementById("cl-track").checked) practices.push("mitigation_tracking");
+      setBusy(btn, true);
+      try {
+        const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/confirm", {
+          method: "POST",
+          body: JSON.stringify({
+            mode: "checklist",
+            items: {
+              bulletin_saved: document.getElementById("cl-bulletin").checked,
+              applied: document.getElementById("cl-applied").checked,
+              wind_mph: Number(document.getElementById("cl-wind").value),
+              practices_done: practices,
+            },
+          }),
+        });
+        await refreshCase();
+        const section = document.getElementById("interp");
+        section.hidden = false;
+        const verdict = document.getElementById("interp-verdict");
+        verdict.dataset.kind = data.status === "VERIFIED" ? "ok" : "warn";
+        document.getElementById("interp-title").textContent = statusLabel(data.status);
+        document.getElementById("interp-body").textContent =
+          (data.verification && data.verification.summary) ||
+          "Checklist recorded against the plan.";
+        document.getElementById("interp-ai").textContent =
+          "Checklist path — rules compared the reply to the plan (no model).";
+        live.textContent = document.getElementById("interp-title").textContent;
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (ex) {
+        showError(err, String(ex.message || ex));
+      } finally {
+        setBusy(btn, false);
+      }
+    });
+
     document.getElementById("confirm-form").addEventListener("submit", async (e) => {
       e.preventDefault();
       const err = document.getElementById("error");
@@ -270,6 +348,7 @@
         const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/confirm", {
           method: "POST",
           body: JSON.stringify({
+            mode: "free_text",
             text,
             bedrock: document.getElementById("bedrock").checked,
           }),
@@ -278,17 +357,14 @@
         const conf = data.confirmation || {};
         const section = document.getElementById("interp");
         section.hidden = false;
-        const needs = !!conf.needs_human;
+        const needs = data.status === "NEEDS_REVIEW" || !!conf.needs_human;
         const verdict = document.getElementById("interp-verdict");
         verdict.dataset.kind = needs ? "warn" : "ok";
-        document.getElementById("interp-title").textContent = needs
-          ? "Needs human review"
-          : statusLabel(data.status);
+        document.getElementById("interp-title").textContent = statusLabel(data.status);
         document.getElementById("interp-body").textContent =
+          (data.verification && data.verification.summary) ||
           conf.summary ||
-          (needs
-            ? "Reply was too thin. Ask for bulletin + practices + spray conditions."
-            : "Reply recorded. Partner board will show this applicator as confirmed.");
+          "Reply recorded.";
         document.getElementById("interp-ai").textContent =
           `Interpretation layer: ${conf.layer || "offline"}. Bulletin: ${conf.bulletin_saved ?? "unclear"}. Applied: ${conf.applied ?? "unclear"}.`;
         live.textContent = document.getElementById("interp-title").textContent;

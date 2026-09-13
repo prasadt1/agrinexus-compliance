@@ -7,8 +7,11 @@ const STATUS_LABELS = {
   PLANNED: "Plan ready — awaiting confirmation",
   NUDGED: "Reminder sent — awaiting confirmation",
   CONFIRMED: "Application record completed",
-  EXPIRED: "Case expired",
-  BLOCKED: "Application blocked",
+  VERIFIED: "Verified against plan",
+  NEEDS_REVIEW: "Needs partner review",
+  EXPIRED: "No reply, expired",
+  CLOSED: "Closed",
+  BLOCKED: "Blocked at plan",
 };
 
 const EVENT_LABELS = {

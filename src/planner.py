@@ -102,16 +102,22 @@ def build_deterministic_plan(
             "epa_reg_no": label.get("epa_reg_no"),
             "product_name": label.get("product_name"),
             "requires_bulletins_live_two": label.get("requires_bulletins_live_two"),
+            "max_wind_mph": label.get("max_wind_mph"),
         },
         "field": {
             "field_id": field.get("field_id"),
             "county": field.get("county"),
             "state": field.get("state"),
+            "name": field.get("name"),
         },
         "bulletin_actions": bulletin.get("actions") or [],
         "points": scored.as_dict(),
         "recommended_additions": additions,
-        "weather": {**weather_snap.as_dict(), **gate.as_dict()},
+        "weather": {
+            **weather_snap.as_dict(),
+            **gate.as_dict(),
+            "max_wind_mph": float(label.get("max_wind_mph", 10)),
+        },
         "citations": [
             "fixtures/mitigation_menu.json",
             str(label.get("excerpt_markdown_path") or "fixtures/labels/"),

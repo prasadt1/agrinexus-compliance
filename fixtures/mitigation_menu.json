@@ -10,67 +10,78 @@
       "id": "runoff_vulnerability_relief",
       "name": "Mitigation relief — reduced pesticide runoff vulnerability county",
       "points": 2,
-      "category": "relief"
+      "category": "relief",
+      "confirmation": "attribute"
     },
     {
       "id": "mitigation_tracking",
       "name": "Mitigation tracking / recordkeeping",
       "points": 1,
-      "category": "general"
+      "category": "general",
+      "confirmation": "practice"
     },
     {
       "id": "non_irrigated",
       "name": "Non-irrigated field",
       "points": 3,
-      "category": "field"
+      "category": "field",
+      "confirmation": "attribute"
     },
     {
       "id": "grassed_waterway",
       "name": "Grassed waterway",
       "points": 2,
-      "category": "in_field"
+      "category": "in_field",
+      "confirmation": "practice"
     },
     {
       "id": "cover_crop",
       "name": "Cover cropping",
       "points": 2,
-      "category": "in_field"
+      "category": "in_field",
+      "confirmation": "practice"
     },
     {
       "id": "conservation_tillage",
       "name": "Conservation tillage",
       "points": 2,
-      "category": "in_field"
+      "category": "in_field",
+      "confirmation": "practice"
     },
     {
       "id": "contour_farming",
       "name": "Contour farming",
       "points": 1,
-      "category": "in_field"
+      "category": "in_field",
+      "confirmation": "practice"
     },
     {
       "id": "vegetative_filter_strip",
       "name": "Vegetative filter strip",
       "points": 2,
-      "category": "field_adjacent"
+      "category": "field_adjacent",
+      "confirmation": "practice"
     },
     {
       "id": "drift_reduction_nozzles",
       "name": "Drift-reduction nozzles / spray quality",
       "points": 1,
-      "category": "application"
+      "category": "application",
+      "confirmation": "practice"
     },
     {
       "id": "reduced_boom_height",
       "name": "Reduced boom height per label",
       "points": 1,
-      "category": "application"
+      "category": "application",
+      "confirmation": "practice"
     },
     {
       "id": "multi_category_bonus",
       "name": "Using mitigation measures from multiple categories",
       "points": 1,
-      "category": "bonus"
+      "category": "bonus",
+      "confirmation": "attribute"
     }
   ]
 }

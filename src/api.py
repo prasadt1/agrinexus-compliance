@@ -18,6 +18,7 @@ from .cohort import build_cohort_summary, nudge_message_for_case
 from .interpreter import interpret
 from .planner import plan
 from .receipt import build_receipt_files, build_receipt_payload
+from .verify import checklist_to_interpretation, verify_against_plan
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
@@ -44,7 +45,9 @@ class PlanRequest(BaseModel):
 
 
 class ConfirmRequest(BaseModel):
-    text: str = Field(min_length=1)
+    mode: str = "free_text"
+    text: Optional[str] = None
+    items: Optional[dict[str, Any]] = None
     bedrock: bool = False
 
 
@@ -151,21 +154,59 @@ def api_nudge(case_id: str, body: Optional[NudgeRequest] = None) -> dict:
 
 @app.post("/api/cases/{case_id}/confirm")
 def api_confirm(case_id: str, body: ConfirmRequest) -> dict[str, Any]:
-    if store.get(case_id) is None:
+    case = store.get(case_id)
+    if case is None:
         raise HTTPException(status_code=404, detail="case not found")
+    mode = (body.mode or "free_text").strip()
     try:
-        confirmation = interpret(body.text, offline=not body.bedrock)
-    except Exception as exc:
-        if body.bedrock:
-            raise _bedrock_http_error(exc) from exc
-        raise
-    try:
+        if mode == "checklist":
+            if not body.items:
+                raise HTTPException(status_code=400, detail="checklist items required")
+            confirmation = checklist_to_interpretation(body.items, case.plan or {})
+            case = store.confirm(case_id, confirmation, mode="checklist")
+            verdict = verify_against_plan(confirmation, case.plan or {})
+            case = store.apply_verification(
+                case_id, verdict, next_status=verdict["next_status"]
+            )
+            return case.as_dict()
+
+        if not body.text or not str(body.text).strip():
+            raise HTTPException(status_code=400, detail="text required for free_text mode")
+        try:
+            confirmation = interpret(
+                body.text, offline=not body.bedrock, plan=case.plan or {}
+            )
+        except Exception as exc:
+            if body.bedrock:
+                # Stay confirmable: record error without stack, leave status unchanged
+                from .clock import now_iso
+
+                c = store.get(case_id)
+                assert c is not None
+                c.events.append(
+                    {
+                        "at": now_iso(),
+                        "type": "error",
+                        "actor": "system",
+                        "detail": "Interpretation failed; reply not stored.",
+                        "data": {"message": str(exc)[:200]},
+                    }
+                )
+                store._update(c)  # noqa: SLF001
+                raise _bedrock_http_error(exc) from exc
+            raise
         case = store.confirm(case_id, confirmation, mode="free_text")
-    except KeyError:
-        raise HTTPException(status_code=404, detail="case not found") from None
+        # Offline free-text: store only (CONFIRMED). Model path: verify.
+        if confirmation.get("layer") == "model":
+            verdict = verify_against_plan(confirmation, case.plan or {})
+            case = store.apply_verification(
+                case_id, verdict, next_status=verdict["next_status"]
+            )
+        return case.as_dict()
     except ConflictError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from None
-    return case.as_dict()
+    except KeyError:
+        raise HTTPException(status_code=404, detail="case not found") from None
 
 
 class ReviewRequest(BaseModel):
