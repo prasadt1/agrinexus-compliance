@@ -29,7 +29,9 @@ DISCLAIMER = (
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    from .clock import now_iso
+
+    return now_iso()
 
 
 def build_receipt_payload(case: ComplianceCase) -> dict[str, Any]:

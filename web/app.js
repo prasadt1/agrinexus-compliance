@@ -220,3 +220,19 @@ function buildPlanSummarySentence(plan, sprayDate) {
       : `${n} bulletin action${n === 1 ? "" : "s"} required before application.`;
   return `${place} · ${productName} · planned spray ${dateBit}. ${req} mitigation points required, ${outcome}. ${windBit} ${bulletinBit}`;
 }
+
+/** Full-page screenshot mode: sticky header renders once (no stitch artifact). */
+(function applyCaptureMode() {
+  try {
+    if (new URLSearchParams(location.search).get("capture") !== "1") return;
+    document.documentElement.classList.add("capture-mode");
+    const style = document.createElement("style");
+    style.textContent =
+      "html.capture-mode .top, html.capture-mode .site-header, " +
+      "html.capture-mode header.site-header, html.capture-mode .topbar, " +
+      "html.capture-mode .app-header { position: static !important; }";
+    document.head.appendChild(style);
+  } catch {
+    /* ignore */
+  }
+})();

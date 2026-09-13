@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from .cases import CaseStore
+from .clock import advance_hours, clear_file_override, now_iso, set_now, status as clock_status
 from .cohort import build_cohort_summary, nudge_message_for_case
 from .interpreter import interpret
 from .planner import plan
@@ -49,6 +50,12 @@ class ConfirmRequest(BaseModel):
 
 class NudgeRequest(BaseModel):
     which: str = "T+24"
+
+
+class DemoClockRequest(BaseModel):
+    set: Optional[str] = None
+    advance_hours: Optional[float] = None
+    clear: bool = False
 
 
 def _bedrock_http_error(exc: Exception) -> HTTPException:
@@ -192,6 +199,55 @@ def api_receipt_json_file(case_id: str) -> FileResponse:
         media_type="application/json",
         filename=f"agrinexus-compliance-{case_id}.json",
     )
+
+
+def _run_tick() -> dict[str, Any]:
+    """Run scheduler if present (added in ladder commit); otherwise no-op."""
+    try:
+        from .scheduler import tick
+    except ImportError:
+        return {"ticked": False, "reason": "scheduler not loaded"}
+    return tick(store)
+
+
+@app.get("/api/demo/clock")
+def api_demo_clock() -> dict[str, Any]:
+    return clock_status()
+
+
+@app.post("/api/demo/clock")
+def api_demo_clock_set(body: DemoClockRequest) -> dict[str, Any]:
+    if body.clear:
+        clear_file_override()
+        return {"clock": clock_status(), "tick": _run_tick()}
+    if body.set:
+        set_now(body.set)
+    elif body.advance_hours is not None:
+        advance_hours(body.advance_hours)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide set (ISO), advance_hours, or clear=true",
+        )
+    return {"clock": clock_status(), "tick": _run_tick()}
+
+
+@app.post("/api/demo/tick")
+def api_demo_tick() -> dict[str, Any]:
+    return {"clock": clock_status(), "tick": _run_tick()}
+
+
+@app.post("/api/demo/reset")
+def api_demo_reset() -> dict[str, Any]:
+    # Import here so scripts/ stays the single reset implementation.
+    sys_path_root = str(ROOT)
+    if sys_path_root not in __import__("sys").path:
+        __import__("sys").path.insert(0, sys_path_root)
+    from scripts.demo_reset import reset_demo
+
+    result = reset_demo(seed=True)
+    result["clock"] = clock_status()
+    return result
 
 
 if WEB.exists():

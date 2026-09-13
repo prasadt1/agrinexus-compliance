@@ -99,10 +99,13 @@
             <ul class="timeline" id="timeline"></ul>
           </div>
           <div class="actions">
-            <button type="button" class="secondary" id="btn-nudge-24">Send 24-hour reminder</button>
-            <button type="button" class="secondary" id="btn-nudge-48">Send 48-hour reminder</button>
+            <button type="button" class="secondary" id="btn-advance-24">Advance 24 hours</button>
+            <button type="button" class="secondary" id="btn-advance-expiry">Advance to expiry</button>
           </div>
-          <p class="muted">Reminders update partner-board status to “Reminder sent — awaiting confirmation.”</p>
+          <p class="muted">
+            Demo clock: <span id="demo-clock">—</span>.
+            Advancing the clock sends reminders and can expire a case with no reply.
+          </p>
         </div>
       </div>
 
@@ -136,6 +139,7 @@
           <input type="checkbox" id="bedrock" />
           Plain-language explanations (AI) — needs AWS Bedrock; leave unchecked for offline
         </label>
+        <p class="muted">Demo clock <span id="demo-clock-panel">—</span></p>
         <p class="muted" translate="no" id="tech-case-id">—</p>
       </details>
     </div>
@@ -215,24 +219,39 @@
       });
     }
 
-    async function nudge(which) {
+    async function refreshClock() {
+      try {
+        const data = await api("/api/demo/clock");
+        const label = formatWhen(data.now) + (data.override_active ? " (demo clock)" : "");
+        const a = document.getElementById("demo-clock");
+        const b = document.getElementById("demo-clock-panel");
+        if (a) a.textContent = label;
+        if (b) b.textContent = label;
+      } catch {
+        /* ignore */
+      }
+    }
+
+    async function advanceClock(hours) {
       const err = document.getElementById("error");
       showError(err, "");
       try {
-        const data = await api("/api/cases/" + encodeURIComponent(caseId) + "/nudge", {
+        await api("/api/demo/clock", {
           method: "POST",
-          body: JSON.stringify({ which }),
+          body: JSON.stringify({ advance_hours: hours }),
         });
-        setOutbound(data.outbound_preview);
+        await refreshClock();
         await refreshCase();
-        document.getElementById("live").textContent = statusLabel("NUDGED");
+        document.getElementById("live").textContent =
+          "Demo clock advanced " + hours + " hours.";
       } catch (ex) {
         showError(err, String(ex.message || ex));
       }
     }
 
-    document.getElementById("btn-nudge-24").addEventListener("click", () => nudge("T+24"));
-    document.getElementById("btn-nudge-48").addEventListener("click", () => nudge("T+48"));
+    document.getElementById("btn-advance-24").addEventListener("click", () => advanceClock(24));
+    document.getElementById("btn-advance-expiry").addEventListener("click", () => advanceClock(72));
+    refreshClock();
 
     document.getElementById("confirm-form").addEventListener("submit", async (e) => {
       e.preventDefault();

@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import asdict, dataclass, field, fields
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +19,9 @@ STATUSES = frozenset({"PLANNED", "NUDGED", "CONFIRMED", "EXPIRED", "BLOCKED"})
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    from .clock import now_iso
+
+    return now_iso()
 
 
 @dataclass
