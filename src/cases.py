@@ -77,6 +77,7 @@ class ComplianceCase:
     outcome: str | None = None
     closed_at: str | None = None
     receipt_sha256: str | None = None
+    is_example: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -416,16 +417,16 @@ class CaseStore:
         case.outcome = outcome
         case.closed_at = now
         case.status = "CLOSED"
-        sha = receipt_sha256_for_case(case)
-        case.receipt_sha256 = sha
-        paths = build_receipt_files(case)
         case.events.append(
             {
                 "at": now,
                 "type": "closed",
                 "actor": "partner",
                 "detail": f"Closed ({outcome})",
-                "data": {"outcome": outcome, "receipt_sha256": sha, "files": paths},
+                "data": {"outcome": outcome},
             }
         )
+        sha = receipt_sha256_for_case(case)
+        case.receipt_sha256 = sha
+        build_receipt_files(case)
         return self._update(case)
