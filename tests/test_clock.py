@@ -32,7 +32,7 @@ def test_clock_override_drives_case_timestamps(tmp_path):
     clock.advance_hours(24, path=clock_file)
     # In-process override also advanced
     nudged = store.simulate_reminder(case.case_id, which="T+24")
-    rem = next(e for e in nudged.events if e["type"] == "reminder_simulated")
+    rem = next(e for e in nudged.events if e["type"] == "reminder_sent")
     assert rem["at"].startswith("2026-06-16T18:00:00")
 
 

@@ -32,7 +32,7 @@ def test_reminder_copy_uses_hour_labels_not_day_24(tmp_path):
     assert "day 48" not in msg48
 
     nudged = store.simulate_reminder(case.case_id, which="T+24")
-    rem = next(e for e in nudged.events if e["type"] == "reminder_simulated")
+    rem = next(e for e in nudged.events if e["type"] == "reminder_sent")
     assert rem["detail"] == rem["outbound_message"]
     assert "24-hour reminder" in rem["detail"]
     assert "demo stand-in" not in rem["detail"]

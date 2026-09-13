@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.cases import CaseStore
+from src.cases import CaseStore, ConflictError
 from src.planner import plan
 from src.receipt import build_receipt_payload, build_receipt_files
 
@@ -19,10 +19,11 @@ def test_create_nudge_confirm_and_receipt(tmp_path):
     case = store.create(result, planned_spray_date="2026-04-15")
     assert case.status == "PLANNED"
     assert case.events[0]["type"] == "planned"
+    assert case.anchor_at
 
     nudged = store.simulate_reminder(case.case_id, which="T+24")
     assert nudged.status == "NUDGED"
-    assert any(e["type"] == "reminder_simulated" for e in nudged.events)
+    assert any(e["type"] == "reminder_sent" for e in nudged.events)
     assert any(e.get("which") == "T+24" for e in nudged.events)
 
     confirmed = store.confirm(
@@ -85,6 +86,34 @@ def test_cannot_nudge_confirmed(tmp_path):
     )
     try:
         store.simulate_reminder(case.case_id)
-        assert False, "expected ValueError"
-    except ValueError:
+        assert False, "expected ConflictError"
+    except ConflictError:
         pass
+
+
+def test_blocked_and_replan(tmp_path):
+    store = CaseStore(path=tmp_path / "cases.jsonl")
+    blocked = store.create(plan(offline=True, windy=True), planned_spray_date="2026-06-15")
+    assert blocked.status == "BLOCKED"
+    calm = plan(offline=True, windy=False)
+    opened = store.replan(blocked.case_id, calm)
+    assert opened.status == "PLANNED"
+
+
+def test_close_expired(tmp_path):
+    from src import clock
+    from datetime import datetime, timedelta, timezone
+    from src.scheduler import compute_anchor, tick
+
+    clock.clear_override()
+    store = CaseStore(path=tmp_path / "cases.jsonl")
+    clock.set_override(datetime(2026, 6, 10, tzinfo=timezone.utc))
+    case = store.create(plan(offline=True), planned_spray_date="2026-06-15")
+    anchor = compute_anchor(case)
+    clock.set_override(anchor + timedelta(hours=72))
+    tick(store)
+    closed = store.close(case.case_id)
+    assert closed.status == "CLOSED"
+    assert closed.outcome == "expired"
+    assert closed.receipt_sha256
+    clock.clear_override()

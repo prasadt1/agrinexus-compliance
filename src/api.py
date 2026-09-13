@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .cases import CaseStore
+from .cases import CaseStore, ConflictError
 from .clock import advance_hours, clear_file_override, now_iso, set_now, status as clock_status
 from .cohort import build_cohort_summary, nudge_message_for_case
 from .interpreter import interpret
@@ -136,6 +136,8 @@ def api_nudge(case_id: str, body: Optional[NudgeRequest] = None) -> dict:
         case = store.simulate_reminder(case_id, which=which)
     except KeyError:
         raise HTTPException(status_code=404, detail="case not found") from None
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None
     data = case.as_dict()
@@ -158,10 +160,75 @@ def api_confirm(case_id: str, body: ConfirmRequest) -> dict[str, Any]:
             raise _bedrock_http_error(exc) from exc
         raise
     try:
-        case = store.confirm(case_id, confirmation)
+        case = store.confirm(case_id, confirmation, mode="free_text")
     except KeyError:
         raise HTTPException(status_code=404, detail="case not found") from None
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
     return case.as_dict()
+
+
+class ReviewRequest(BaseModel):
+    decision: str
+    note: str = Field(min_length=1)
+    actor: str = "partner"
+
+
+class CloseRequest(BaseModel):
+    outcome: Optional[str] = None
+
+
+class ReplanRequest(BaseModel):
+    windy: bool = False
+    bedrock: bool = False
+    planned_spray_date: Optional[str] = None
+
+
+@app.post("/api/cases/{case_id}/review")
+def api_review(case_id: str, body: ReviewRequest) -> dict[str, Any]:
+    try:
+        case = store.review(
+            case_id, decision=body.decision, note=body.note, actor=body.actor
+        )
+    except KeyError:
+        raise HTTPException(status_code=404, detail="case not found") from None
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+    return case.as_dict()
+
+
+@app.post("/api/cases/{case_id}/close")
+def api_close(case_id: str, body: Optional[CloseRequest] = None) -> dict[str, Any]:
+    outcome = body.outcome if body else None
+    try:
+        case = store.close(case_id, outcome=outcome)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="case not found") from None
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+    return case.as_dict()
+
+
+@app.post("/api/cases/{case_id}/replan")
+def api_replan(case_id: str, body: ReplanRequest) -> dict[str, Any]:
+    try:
+        result = plan(offline=not body.bedrock, windy=body.windy)
+        case = store.replan(
+            case_id, result, planned_spray_date=body.planned_spray_date
+        )
+    except KeyError:
+        raise HTTPException(status_code=404, detail="case not found") from None
+    except ConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from None
+    except Exception as exc:
+        if body.bedrock:
+            raise _bedrock_http_error(exc) from exc
+        raise
+    return {"plan": result, "case": case.as_dict()}
 
 
 @app.get("/api/cases/{case_id}/receipt")

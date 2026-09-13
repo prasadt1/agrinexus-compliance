@@ -235,3 +235,15 @@ def build_receipt_files(
     json_path = write_receipt_json(case, out_dir=out_dir)
     pdf_path = write_receipt_pdf(case, out_dir=out_dir)
     return {"json": str(json_path), "pdf": str(pdf_path)}
+
+
+def receipt_sha256_for_case(case: ComplianceCase) -> str:
+    """SHA-256 of receipt JSON with receipt_sha256 field absent."""
+    import hashlib
+
+    payload = build_receipt_payload(case)
+    payload.pop("receipt_sha256", None)
+    blob = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode(
+        "utf-8"
+    )
+    return hashlib.sha256(blob).hexdigest()
