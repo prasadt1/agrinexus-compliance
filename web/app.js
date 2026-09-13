@@ -14,8 +14,10 @@ const STATUS_LABELS = {
 const EVENT_LABELS = {
   planned: "Plan created",
   reminder_simulated: "Reminder sent",
+  reminder_sent: "Reminder sent",
   confirm_needs_human: "Confirmation needs human review",
   confirmed: "Confirmation recorded",
+  expired: "No reply, expired",
 };
 
 function getCaseId() {
@@ -47,8 +49,11 @@ function statusLabel(code) {
 function eventLabel(ev) {
   if (!ev) return "—";
   const base = EVENT_LABELS[ev.type] || ev.type;
-  if (ev.type === "reminder_simulated" && ev.which) {
+  if ((ev.type === "reminder_simulated" || ev.type === "reminder_sent") && ev.which) {
     return `${base} (${ev.which})`;
+  }
+  if (ev.type === "reminder_sent" && ev.data && ev.data.nudge_count) {
+    return `${base} (#${ev.data.nudge_count})`;
   }
   return base;
 }

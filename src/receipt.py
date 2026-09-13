@@ -69,7 +69,9 @@ def build_receipt_payload(case: ComplianceCase) -> dict[str, Any]:
         "confirmation": case.confirmation,
         "events": case.events,
         "reminder_events": [
-            e for e in case.events if e.get("type") == "reminder_simulated"
+            e
+            for e in case.events
+            if e.get("type") in {"reminder_simulated", "reminder_sent"}
         ],
     }
 
