@@ -1,0 +1,23 @@
+{
+  "fixture_id": "blt-boone-ia-7969-500-2026-09",
+  "county": "Boone",
+  "state": "IA",
+  "lat": 42.019052,
+  "lon": -93.774039,
+  "application_month": "2026-09",
+  "epa_reg_no": "7969-500",
+  "product_name": "BASF L-Glufosinate-Ammonium 211 Herbicide (Liberty ULTRA)",
+  "pula_active": false,
+  "pula_notes": "Printed Bulletin states: Currently, no pesticide use limitations exist within the printed map view for the month/year and product you selected, beyond the instructions specified on the pesticide label. Follow the use instructions on your label.",
+  "actions": [
+    "Follow the use instructions on your label.",
+    "Ensure that your pesticide application area is within the printed map view. If it is not, follow the directions on the Instructions Tab to ensure that your pesticide application area is captured within the printed map view.",
+    "Please check back if you plan to apply your pesticide in an area outside the map view or in a month and year other than the one for which this Bulletin is valid."
+  ],
+  "source": "https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins",
+  "bulletin_pdf": "fixtures/bulletins/blt-boone-ia-7969-500-2026-09.pdf",
+  "date_printed": "2026-09-13T18:40:05",
+  "retrieved": "2026-09-13",
+  "label_source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/007969-00500-20241206.pdf",
+  "field_name": "ISU Ag Engineering/Agronomy Research Farm — Boone"
+}

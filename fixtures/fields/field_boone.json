@@ -1,10 +1,10 @@
 {
-  "field_id": "boone-ia-isu-table1",
-  "name": "Hypothetical field — Boone County, IA (Iowa State ICM Table 1)",
+  "field_id": "boone-ia-isu-aea-farm",
+  "name": "ISU Ag Engineering/Agronomy Research Farm — Boone",
   "state": "IA",
   "county": "Boone",
-  "lat": 42.0667,
-  "lon": -93.8802,
+  "lat": 42.019052,
+  "lon": -93.774039,
   "irrigated": false,
   "practices": [
     "runoff_vulnerability_relief",
@@ -12,6 +12,6 @@
     "non_irrigated",
     "grassed_waterway"
   ],
-  "notes": "Matches Table 1 in Meaghan Anderson, Iowa State ICM, 11 Mar 2026 (9 points with multi-category bonus). Replace with a partner field before a paid pilot.",
+  "notes": "Practices follow Iowa State ICM Table 1 (Anderson, 11 March 2026). Location is the ISU Agricultural Engineering/Agronomy Research Farm (1308 U Ave area, Boone County), chosen for the demo so the Bulletins Live! Two map shows cropped fields rather than a town centroid. Address reference: https://farms.cals.iastate.edu/project/agricultural-engineeringagronomy-and-central-iowa-research-farms",
   "source_url": "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements"
 }
