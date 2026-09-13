@@ -111,6 +111,7 @@ def test_409_mutations_on_closed(tmp_path):
 
 def test_seed_cohort_ladder(tmp_path, monkeypatch):
     from src import seed_cohort as sc
+    from src.clock import status as clock_status
 
     monkeypatch.setattr(sc, "ROOT", ROOT)
     store = CaseStore(path=tmp_path / "cases.jsonl")
@@ -123,3 +124,22 @@ def test_seed_cohort_ladder(tmp_path, monkeypatch):
     assert by_name["D. Okafor"] == "CLOSED"
     assert by_name["S. Nguyen"] == "NEEDS_REVIEW"
     assert by_name["M. Larsen"] == "BLOCKED"
+    for case in store.list_cases():
+        sc.assert_events_non_decreasing(case)
+    # Martinez must show real gaps between ladder rungs (not one collapsed timestamp)
+    martinez = next(c for c in store.list_cases() if c.applicator_name == "J. Martinez")
+    times = [e["at"] for e in martinez.events]
+    assert len(set(times)) >= 4
+    clk = clock_status()
+    assert clk["override_active"] is False
+    assert clk["source"] == "system"
+
+
+def test_seeded_events_are_non_decreasing(tmp_path, monkeypatch):
+    from src import seed_cohort as sc
+
+    monkeypatch.setattr(sc, "ROOT", ROOT)
+    store = CaseStore(path=tmp_path / "cases.jsonl")
+    sc.seed_cohort(store)
+    for case in store.list_cases():
+        sc.assert_events_non_decreasing(case)

@@ -16,7 +16,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.clock import clear_file_override, clear_override  # noqa: E402
+from src.clock import clear_file_override, clear_override, status as clock_status  # noqa: E402
 
 
 def reset_demo(*, seed: bool = True) -> dict:
@@ -38,11 +38,13 @@ def reset_demo(*, seed: bool = True) -> dict:
 
         seeded = seed_cohort()
 
+    clk = clock_status()
     return {
         "cases_path": str(cases),
         "receipts_dir": str(receipts),
         "seeded": seeded,
-        "clock_cleared": True,
+        "clock_cleared": not clk.get("override_active"),
+        "clock": clk,
     }
 
 

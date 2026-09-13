@@ -48,3 +48,5 @@ def test_demo_reset_clears_cases(tmp_path, monkeypatch):
     assert (tmp_path / "data" / "cases.jsonl").read_text(encoding="utf-8") == ""
     assert not (tmp_path / "receipts" / "x.pdf").exists()
     assert result["seeded"] == 0
+    assert result["clock_cleared"] is True
+    assert result["clock"]["override_active"] is False
