@@ -110,7 +110,7 @@
         popover: {
           title: "Step 2 — Confirm",
           description:
-            "SMS-style reminder out; applicator replies in their own words. Simulate day-after reminder (T+24) for the video.",
+            "SMS-style reminder out; applicator replies in their own words. Use Advance 24 hours in Demo controls for the video.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",

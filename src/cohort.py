@@ -77,6 +77,13 @@ def build_cohort_summary(store: CaseStore, fixture_path: Path | None = None) -> 
     }
 
 
+def _reminder_label(which: str) -> str:
+    """Map schedule keys to hour-based reminder labels for SMS copy."""
+    if which in {"T+48", "48h", "48-hour"}:
+        return "48-hour reminder"
+    return "24-hour reminder"
+
+
 def nudge_message_for_case(case: ComplianceCase, which: str = "T+24") -> str:
     """Outbound SMS-style copy (Twilio in production)."""
     plan = case.plan or {}
@@ -85,9 +92,9 @@ def nudge_message_for_case(case: ComplianceCase, which: str = "T+24") -> str:
     product_name = product.get("product_name") or "your product"
     reg = case.epa_reg_no or product.get("epa_reg_no") or ""
     field_bit = field.get("county") or "your field"
-    when = which.replace("T+", "day ")
+    when = _reminder_label(which)
     return (
-        f"AgriNexus Compliance ({when} reminder): Your plan for {product_name} "
+        f"AgriNexus Compliance ({when}): Your plan for {product_name} "
         f"(EPA {reg}) at {field_bit} is on file. "
         "Did you save the Bulletins Live! bulletin, meet mitigation points, "
         "and apply within weather limits? Reply in your own words or use your secure link."

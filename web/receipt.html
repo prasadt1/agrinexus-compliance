@@ -185,7 +185,7 @@
           const rems = data.reminder_events || [];
           document.getElementById("rem-human").textContent = rems.length
             ? rems.map((r) => r.which || "reminder").join(", ") + " recorded on this receipt"
-            : "None yet — use Confirm to simulate day-after reminder (T+24)";
+            : "None yet — use Confirm Demo controls to advance the clock and send reminders";
 
           document.getElementById("sum-field").textContent =
             `${field.county || ""}, ${field.state || ""}`.replace(/^, |, $/g, "") || field.field_id || "—";

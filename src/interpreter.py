@@ -38,7 +38,10 @@ def interpret_offline(text: str) -> dict[str, Any]:
         "weather_respected": None,
         "needs_human": unclear or (applied and not bulletin),
         "confidence": 0.35,
-        "summary": "offline heuristic only — replace with Bedrock for demos",
+        "summary": (
+            "Reply stored. Interpretation needs the model layer, "
+            "which is off in this session."
+        ),
         "layer": "offline_stub",
         "raw_text": text,
     }

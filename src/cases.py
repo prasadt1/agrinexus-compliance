@@ -131,9 +131,10 @@ class CaseStore:
         return case
 
     def simulate_reminder(self, case_id: str, which: str = "T+24") -> ComplianceCase:
-        """
-        Demo stand-in for EventBridge T+24 / T+48.
-        Flips PLANNED → NUDGED and appends a visible SMS-style outbound for the receipt.
+        """Append a reminder and flip PLANNED → NUDGED.
+
+        Code comment only: this is the temporary stand-in until scheduler.tick
+        (EventBridge in production) owns reminder timing.
         """
         from .cohort import nudge_message_for_case
 
@@ -151,7 +152,7 @@ class CaseStore:
             {
                 "at": now,
                 "type": "reminder_simulated",
-                "detail": f"Simulated {label} confirm-or-remind (demo stand-in for EventBridge)",
+                "detail": outbound,
                 "which": label,
                 "channel": "sms",
                 "outbound_message": outbound,

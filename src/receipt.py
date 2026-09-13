@@ -186,7 +186,7 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
         )
     )
 
-    story.append(Paragraph("Case events (includes simulated reminders)", h2))
+    story.append(Paragraph("Case events", h2))
     if not payload.get("events"):
         story.append(Paragraph("No events recorded.", body))
     else:
