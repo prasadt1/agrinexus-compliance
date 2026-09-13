@@ -41,38 +41,27 @@
       <p class="lede">
         You run a county or training program. Applicators get a plan for one field and product,
         a reminder by SMS, and a place to confirm what they did. You see the cohort —
-        who planned, who was reminded, who confirmed — the same closed loop as Outturn / AgriNexus.
-      </p>
-      <p class="bridge">
-        <strong>How a pilot works:</strong> enroll applicators → each gets a check for Liberty ULTRA
-        (7969-500) in Boone → SMS reminds them → they reply in plain language → you download records
-        and watch follow-through. SMS is the US channel (Twilio); WhatsApp stays on the India product.
+        who planned, who was reminded, who verified — the same closed loop as Outturn / AgriNexus.
       </p>
       <div class="actions">
         <a class="button" href="/check.html">Open applicator check (try one session)</a>
         <button type="button" class="button ghost" data-tour-trigger>90-second tour</button>
       </div>
-      <p class="muted" style="margin-top:0.75rem">
-        Applicator path uses a clear <strong>1 Plan → 2 Confirm → 3 Receipt</strong> stepper.
-        This board is the partner view (Outturn-shaped).
-      </p>
     </section>
 
-    <section class="metric-row" data-tour="cohort-stats" id="cohort-stats">
-      <div class="metric">
-        <span class="label">In cohort</span>
-        <span class="value" id="stat-total">—</span>
-        <span class="sub" id="stat-total-sub">live + example roster</span>
-      </div>
-      <div class="metric">
-        <span class="label">Confirmed</span>
-        <span class="value" id="stat-confirmed">—</span>
-        <span class="sub">record completed</span>
-      </div>
+    <section class="metric-row count-strip" data-tour="cohort-stats" id="cohort-stats">
+      <div class="metric"><span class="label">Planned</span><span class="value" id="stat-planned">—</span></div>
+      <div class="metric"><span class="label">Reminded</span><span class="value" id="stat-nudged">—</span></div>
+      <div class="metric"><span class="label">Awaiting verdict</span><span class="value" id="stat-awaiting">—</span></div>
+      <div class="metric"><span class="label">Needs review</span><span class="value" id="stat-review">—</span></div>
+      <div class="metric"><span class="label">Verified</span><span class="value" id="stat-verified">—</span></div>
+      <div class="metric"><span class="label">Expired</span><span class="value" id="stat-expired">—</span></div>
+      <div class="metric"><span class="label">Closed</span><span class="value" id="stat-closed">—</span></div>
+      <div class="metric"><span class="label">Blocked</span><span class="value" id="stat-blocked">—</span></div>
       <div class="metric">
         <span class="label">Follow-through</span>
         <span class="value" id="stat-pct">—</span>
-        <span class="sub" id="stat-breakdown">planned / nudged</span>
+        <span class="sub">verified ÷ (total − blocked)</span>
       </div>
     </section>
 
@@ -92,15 +81,27 @@
           <tbody id="cohort-body"></tbody>
         </table>
       </div>
-      <p class="muted" style="margin-top:0.75rem">
-        Example rows show a training roster. When you run an applicator check, a <strong>live</strong> row appears here.
-      </p>
     </section>
+
+    <dialog id="review-dialog">
+      <form method="dialog" id="review-form" class="form">
+        <h2>Partner review</h2>
+        <p id="review-failing" class="muted"></p>
+        <label>Note (required)
+          <textarea id="review-note" rows="3" required></textarea>
+        </label>
+        <div class="actions">
+          <button type="submit" value="accept" id="review-accept">Accept as verified</button>
+          <button type="submit" value="unverified" class="secondary" id="review-unverified">Close as unverified</button>
+          <button type="button" class="ghost" id="review-cancel">Cancel</button>
+        </div>
+      </form>
+    </dialog>
 
     <section class="split-explain" data-tour="roles">
       <article class="explain calc">
         <h3>Partner (you)</h3>
-        <p>See the board. Re-nudge people who have not confirmed. Keep receipts for the program.</p>
+        <p>See the board. Review unclear replies. Close verified or expired cases and keep receipts.</p>
       </article>
       <article class="explain ai">
         <h3>Applicator</h3>
@@ -113,6 +114,8 @@
   <script src="/app.js"></script>
   <script src="/tour.js"></script>
   <script>
+    let reviewCaseId = null;
+
     function syncNav() {
       const id = getCaseId();
       if (id) {
@@ -125,22 +128,36 @@
     syncNav();
 
     function statusClass(st) {
-      if (st === "CONFIRMED") return "ok";
-      if (st === "NUDGED") return "warn";
+      if (st === "VERIFIED" || st === "CLOSED") return "ok";
+      if (st === "NUDGED" || st === "NEEDS_REVIEW" || st === "CONFIRMED") return "warn";
+      if (st === "BLOCKED" || st === "EXPIRED") return "block";
       return "idle";
+    }
+
+    function actionButton(label, onClick) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "button ghost";
+      b.style.padding = "0.35rem 0.65rem";
+      b.style.fontSize = "0.82rem";
+      b.textContent = label;
+      b.addEventListener("click", onClick);
+      return b;
     }
 
     async function loadCohort() {
       const data = await api("/api/cohort");
       const s = data.stats || {};
-      document.getElementById("stat-total").textContent = s.total ?? "—";
-      document.getElementById("stat-total-sub").textContent =
-        `${s.live_cases || 0} live · ${s.seed_examples || 0} examples`;
-      document.getElementById("stat-confirmed").textContent = s.confirmed ?? "—";
+      document.getElementById("stat-planned").textContent = s.planned ?? "—";
+      document.getElementById("stat-nudged").textContent = s.nudged ?? "—";
+      document.getElementById("stat-awaiting").textContent = s.awaiting_verdict ?? "—";
+      document.getElementById("stat-review").textContent = s.needs_review ?? "—";
+      document.getElementById("stat-verified").textContent = s.verified ?? "—";
+      document.getElementById("stat-expired").textContent = s.expired ?? "—";
+      document.getElementById("stat-closed").textContent = s.closed ?? "—";
+      document.getElementById("stat-blocked").textContent = s.blocked ?? "—";
       document.getElementById("stat-pct").textContent =
-        (s.follow_through_pct != null ? s.follow_through_pct + "%" : "—");
-      document.getElementById("stat-breakdown").textContent =
-        `${s.planned || 0} planned · ${s.nudged || 0} waiting on reply`;
+        s.follow_through_pct != null ? s.follow_through_pct + "%" : "—";
       document.getElementById("cohort-meta").textContent =
         `${data.county}, ${data.state} · ${data.season} · channel: ${data.channel || "sms"} · ${data.partner || ""}`;
 
@@ -148,18 +165,43 @@
       body.innerHTML = "";
       (data.members || []).forEach((m) => {
         const tr = document.createElement("tr");
-        const live = !m.is_seed && m.case_id;
+        const live = !!m.case_id;
+        const tag = m.is_example || m.is_seed ? "· example" : "· live";
         tr.innerHTML = `
           <td>
             <strong>${m.name || "—"}</strong>
-            <div class="muted">${m.phone || ""} ${m.is_seed ? "· example" : "· live"}</div>
+            <div class="muted">${m.phone || ""} ${tag}</div>
           </td>
           <td>${m.field_label || "—"}</td>
-          <td><span class="pill ${statusClass(m.status)}">${statusLabel(m.status)}</span></td>
+          <td><span class="pill ${statusClass(m.status)}">${statusLabel(m.status, m.outcome)}</span></td>
           <td class="row-actions"></td>
         `;
         const actions = tr.querySelector(".row-actions");
-        if (live) {
+        if (!live) {
+          actions.textContent = "—";
+        } else if (m.status === "NEEDS_REVIEW") {
+          actions.appendChild(
+            actionButton("Review", () => openReview(m))
+          );
+        } else if (m.status === "VERIFIED" || m.status === "EXPIRED") {
+          actions.appendChild(
+            actionButton("Close and issue receipt", async () => {
+              await api("/api/cases/" + encodeURIComponent(m.case_id) + "/close", {
+                method: "POST",
+                body: JSON.stringify({}),
+              });
+              await loadCohort();
+            })
+          );
+        } else if (m.status === "CLOSED") {
+          const a = document.createElement("a");
+          a.className = "button ghost";
+          a.style.padding = "0.35rem 0.65rem";
+          a.style.fontSize = "0.82rem";
+          a.href = "/receipt.html?case_id=" + encodeURIComponent(m.case_id);
+          a.textContent = "Open receipt";
+          actions.appendChild(a);
+        } else {
           const a = document.createElement("a");
           a.className = "button ghost";
           a.style.padding = "0.35rem 0.65rem";
@@ -167,12 +209,38 @@
           a.href = "/confirm.html?case_id=" + encodeURIComponent(m.case_id);
           a.textContent = "Open inbox";
           actions.appendChild(a);
-        } else {
-          actions.textContent = "—";
         }
         body.appendChild(tr);
       });
     }
+
+    function openReview(m) {
+      reviewCaseId = m.case_id;
+      const items = (m.verification && m.verification.items) || [];
+      const failing = items.filter((i) => i.result === "fail");
+      document.getElementById("review-failing").textContent = failing.length
+        ? "Failing: " + failing.map((i) => i.check + " (" + (i.evidence || "") + ")").join("; ")
+        : "No item detail on file.";
+      document.getElementById("review-note").value = "";
+      document.getElementById("review-dialog").showModal();
+    }
+
+    document.getElementById("review-cancel").addEventListener("click", () => {
+      document.getElementById("review-dialog").close();
+    });
+
+    document.getElementById("review-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const decision = e.submitter && e.submitter.value;
+      const note = document.getElementById("review-note").value.trim();
+      if (!reviewCaseId || !decision || !note) return;
+      await api("/api/cases/" + encodeURIComponent(reviewCaseId) + "/review", {
+        method: "POST",
+        body: JSON.stringify({ decision, note }),
+      });
+      document.getElementById("review-dialog").close();
+      await loadCohort();
+    });
 
     loadCohort().catch((ex) => {
       document.getElementById("cohort-meta").textContent = String(ex.message || ex);

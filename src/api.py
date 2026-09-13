@@ -40,8 +40,8 @@ class PlanRequest(BaseModel):
     bedrock: bool = False
     planned_spray_date: Optional[str] = None
     create_case: bool = True
-    applicator_name: Optional[str] = "You (pilot applicator)"
-    phone: Optional[str] = "+1 (515) 555-0100"
+    applicator_name: Optional[str] = None
+    phone: Optional[str] = None
 
 
 class ConfirmRequest(BaseModel):
@@ -91,6 +91,8 @@ def api_cohort() -> dict[str, Any]:
 
 @app.post("/api/plan")
 def api_plan(body: PlanRequest) -> dict[str, Any]:
+    if body.create_case and not (body.applicator_name or "").strip():
+        raise HTTPException(status_code=400, detail="applicator_name is required")
     try:
         result = plan(offline=not body.bedrock, windy=body.windy)
     except Exception as exc:
@@ -102,7 +104,7 @@ def api_plan(body: PlanRequest) -> dict[str, Any]:
         case = store.create(
             result,
             planned_spray_date=body.planned_spray_date,
-            applicator_name=body.applicator_name,
+            applicator_name=(body.applicator_name or "").strip(),
             phone=body.phone,
         )
         out["case"] = case.as_dict()

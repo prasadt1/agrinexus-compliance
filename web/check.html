@@ -47,6 +47,10 @@
 
     <form id="plan-form" class="form" data-tour="check-cta">
       <label>
+        Applicator name
+        <input type="text" id="applicator-name" name="applicator_name" required autocomplete="name" placeholder="e.g., J. Martinez" />
+      </label>
+      <label>
         Planned spray date
         <input type="date" id="spray-date" name="planned_spray_date" autocomplete="off" />
       </label>
@@ -70,7 +74,7 @@
         Plain-language explanations (AI) — needs AWS Bedrock; offline mode skips this
       </label>
       <p class="muted" style="margin-top:0.75rem">
-        Fixtures retrieved ~2026-08-23 · Liberty ULTRA label + August 2026 BLT printable in
+        Fixtures · Liberty ULTRA label + September 2026 BLT at the ISU AEA farm in
         <code>fixtures/</code>. See README for source URLs.
       </p>
     </details>
@@ -158,6 +162,12 @@
       setBusy(btn, true);
       const sprayDate = document.getElementById("spray-date").value || null;
       const windy = document.getElementById("weather-scenario").value === "windy";
+      const applicatorName = document.getElementById("applicator-name").value.trim();
+      if (!applicatorName) {
+        showError(err, "Enter an applicator name.");
+        setBusy(btn, false);
+        return;
+      }
       try {
         const data = await api("/api/plan", {
           method: "POST",
@@ -166,6 +176,7 @@
             bedrock: document.getElementById("bedrock").checked,
             planned_spray_date: sprayDate,
             create_case: true,
+            applicator_name: applicatorName,
           }),
         });
         const plan = data.plan;

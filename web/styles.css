@@ -861,10 +861,20 @@ details.panel[open] > summary::before { content: "▾ "; }
 
 .phone-aside .record-block { margin-top: 0; }
 
-.confirm-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin: 0 0 1rem;
+.count-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.65rem;
+}
+dialog#review-dialog {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1.25rem;
+  max-width: 32rem;
+  background: var(--panel);
+}
+dialog#review-dialog::backdrop {
+  background: rgba(26, 23, 20, 0.45);
 }
 .confirm-tabs .tab {
   border: 1px solid var(--line);

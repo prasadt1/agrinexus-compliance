@@ -44,8 +44,11 @@ function resolveCaseId() {
   return getCaseId();
 }
 
-function statusLabel(code) {
+function statusLabel(code, outcome) {
   if (!code) return "—";
+  if (code === "CLOSED" && outcome) {
+    return `Closed (${outcome})`;
+  }
   return STATUS_LABELS[code] || String(code).replace(/_/g, " ");
 }
 

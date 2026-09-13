@@ -1,4 +1,4 @@
-"""Cohort view — merge seed pilot roster with live cases from the case store."""
+"""Cohort view — partner board summary over live cases (+ optional seed rows)."""
 
 from __future__ import annotations
 
@@ -22,38 +22,61 @@ def _case_row(case: ComplianceCase) -> dict[str, Any]:
     plan = case.plan or {}
     field = plan.get("field") or {}
     product = plan.get("product") or {}
+    status_label = case.status
+    if case.status == "CLOSED" and case.outcome:
+        status_label = f"CLOSED ({case.outcome})"
     return {
         "applicator_id": case.case_id,
         "case_id": case.case_id,
         "name": case.applicator_name or "Live session applicator",
         "phone": case.phone or "—",
-        "field_label": field.get("name") or f"{field.get('county', '')}, {field.get('state', '')}".strip(", "),
+        "field_label": field.get("name")
+        or f"{field.get('county', '')}, {field.get('state', '')}".strip(", "),
         "status": case.status,
+        "status_label": status_label,
+        "outcome": case.outcome,
         "plan_status": plan.get("status"),
         "epa_reg_no": case.epa_reg_no,
         "product_name": product.get("product_name"),
         "planned_spray_date": case.planned_spray_date,
         "updated_at": case.updated_at,
+        "verification": case.verification,
         "is_seed": False,
+        "is_example": False,
     }
 
 
 def build_cohort_summary(store: CaseStore, fixture_path: Path | None = None) -> dict[str, Any]:
     fixture = load_cohort_fixture(fixture_path)
     live = [_case_row(c) for c in store.list_cases()]
-    seed = [dict(s, case_id=None) for s in fixture.get("seed_applicators") or []]
-
-    # Live cases first (newest activity), then seed examples
+    # seed_applicators removed once seed_cohort lands; keep backward-compatible read.
+    seed = [
+        dict(s, case_id=None, is_seed=True, is_example=True)
+        for s in fixture.get("seed_applicators") or []
+    ]
     members = live + seed
 
     def bucket(status: str) -> int:
         return sum(1 for m in members if m.get("status") == status)
 
-    confirmed = bucket("CONFIRMED")
-    nudged = bucket("NUDGED")
     planned = bucket("PLANNED")
+    nudged = bucket("NUDGED")
+    confirmed = bucket("CONFIRMED")  # awaiting verdict
+    needs_review = bucket("NEEDS_REVIEW")
+    verified = bucket("VERIFIED")
+    expired = bucket("EXPIRED")
+    closed = bucket("CLOSED")
+    blocked = bucket("BLOCKED")
+    # Closed-verified also counts toward follow-through
+    closed_verified = sum(
+        1
+        for m in members
+        if m.get("status") == "CLOSED" and m.get("outcome") == "verified"
+    )
     total = len(members)
-    follow_through_pct = round(100 * confirmed / total) if total else 0
+    denom = max(total - blocked, 0)
+    follow_num = verified + closed_verified
+    follow_through_pct = round(100 * follow_num / denom) if denom else 0
 
     return {
         "cohort_id": fixture.get("cohort_id"),
@@ -66,9 +89,17 @@ def build_cohort_summary(store: CaseStore, fixture_path: Path | None = None) -> 
         "partner": fixture.get("partner"),
         "stats": {
             "total": total,
-            "confirmed": confirmed,
-            "nudged": nudged,
             "planned": planned,
+            "nudged": nudged,
+            "reminded": nudged,
+            "confirmed": confirmed,
+            "awaiting_verdict": confirmed,
+            "needs_review": needs_review,
+            "verified": verified + closed_verified,
+            "verified_open": verified,
+            "expired": expired,
+            "closed": closed,
+            "blocked": blocked,
             "follow_through_pct": follow_through_pct,
             "live_cases": len(live),
             "seed_examples": len(seed),
