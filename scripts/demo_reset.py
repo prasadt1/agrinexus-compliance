@@ -34,12 +34,9 @@ def reset_demo(*, seed: bool = True) -> dict:
 
     seeded = 0
     if seed:
-        try:
-            from src.seed_cohort import seed_cohort  # type: ignore
+        from src.seed_cohort import seed_cohort
 
-            seeded = seed_cohort()
-        except ImportError:
-            seeded = 0
+        seeded = seed_cohort()
 
     return {
         "cases_path": str(cases),

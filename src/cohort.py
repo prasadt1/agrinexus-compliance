@@ -42,7 +42,7 @@ def _case_row(case: ComplianceCase) -> dict[str, Any]:
         "updated_at": case.updated_at,
         "verification": case.verification,
         "is_seed": False,
-        "is_example": False,
+        "is_example": bool(getattr(case, "is_example", False)),
     }
 
 
