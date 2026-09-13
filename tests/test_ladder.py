@@ -74,7 +74,9 @@ def test_full_ladder_checklist_close(tmp_path):
     assert "verified" in types
     assert "closed" in types
     assert len(payload["timeline"]) >= 6
-    # sha matches recomputation
+    # sha matches recomputation even after the clock advances
+    assert closed.receipt_sha256 == receipt_sha256_for_case(closed)
+    clock.set_override(anchor + timedelta(hours=100))
     assert closed.receipt_sha256 == receipt_sha256_for_case(closed)
 
 
