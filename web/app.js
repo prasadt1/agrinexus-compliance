@@ -4,14 +4,14 @@ const STATUS_LABELS = {
   APPLY_OK: "OK to apply as planned",
   WEATHER_BLOCK: "Do not apply: weather exceeds label limits",
   POINTS_SHORT: "Do not apply: more mitigation is required",
-  PLANNED: "Plan ready — awaiting confirmation",
-  NUDGED: "Reminder sent — awaiting confirmation",
-  CONFIRMED: "Application record completed",
-  VERIFIED: "Verified against plan",
-  NEEDS_REVIEW: "Needs partner review",
-  EXPIRED: "No reply, expired",
+  PLANNED: "Planned",
+  NUDGED: "Reminded",
+  CONFIRMED: "Awaiting verdict",
+  VERIFIED: "Verified",
+  NEEDS_REVIEW: "Needs review",
+  EXPIRED: "Expired",
   CLOSED: "Closed",
-  BLOCKED: "Blocked at plan",
+  BLOCKED: "Blocked",
 };
 
 const EVENT_LABELS = {
