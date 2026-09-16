@@ -157,10 +157,10 @@
       </section>
 
       <details class="panel demo-controls">
-        <summary>Demo controls</summary>
+        <summary>Demo settings</summary>
         <label class="check">
           <input type="checkbox" id="bedrock" />
-          Plain-language explanations (AI) — needs AWS Bedrock; leave unchecked for offline
+          Optional model explanations (requires cloud credentials; leave unchecked offline)
         </label>
         <p class="muted">Demo clock <span id="demo-clock-panel">—</span></p>
         <p class="muted" translate="no" id="tech-case-id">—</p>
@@ -168,7 +168,7 @@
     </div>
 
     <footer class="page-footer muted">
-      Sample educational data · fixture dates in README
+      Sample educational data · Boone / Liberty ULTRA
     </footer>
   </main>
 
@@ -238,7 +238,7 @@
         gate.hidden = false;
         main.hidden = true;
         gate.querySelector("p").textContent =
-          "Could not load this session: " + String(ex.message || ex);
+          "Could not load this case: " + String(ex.message || ex);
       });
     }
 
