@@ -32,6 +32,17 @@ body {
   min-height: 100vh;
 }
 
+.demo-banner {
+  margin: 0;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--ink);
+  background: #f0e6d8;
+  border-bottom: 1px solid var(--line);
+}
+
 a { color: var(--accent); }
 
 .top {
