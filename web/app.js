@@ -247,3 +247,14 @@ function buildPlanSummarySentence(plan, sprayDate) {
     /* ignore */
   }
 })();
+
+/** Persistent demo honesty banner on every page. */
+(function injectDemoBanner() {
+  if (document.querySelector(".demo-banner")) return;
+  const p = document.createElement("p");
+  p.className = "demo-banner";
+  p.setAttribute("role", "note");
+  p.textContent =
+    "Demonstration with sample data. No live applicators, no live text messages. Educational, not legal advice.";
+  document.body.insertBefore(p, document.body.firstChild);
+})();
