@@ -1,5 +1,5 @@
 /**
- * Guided tour — same interaction model as Outturn (driver.js spotlight).
+ * Guided tour — driver.js spotlight, case vocabulary only.
  * Pages set window.COMPLIANCE_TOUR_STEPS before this script runs, or use built-ins.
  */
 (function () {
@@ -15,11 +15,11 @@
   }
 
   function addSkipButton(popover, d) {
-    if (popover.footerButtons.querySelector(".outturn-skip-btn")) return;
+    if (popover.footerButtons.querySelector(".tour-skip-btn")) return;
     const skip = document.createElement("button");
     skip.type = "button";
     skip.textContent = "Skip";
-    skip.className = "driver-popover-prev-btn outturn-skip-btn";
+    skip.className = "driver-popover-prev-btn tour-skip-btn outturn-skip-btn";
     skip.addEventListener("click", function () {
       d.destroy();
     });
@@ -30,9 +30,9 @@
     home: [
       {
         popover: {
-          title: "What this product is",
+          title: "What this tool is",
           description:
-            "AgriNexus Compliance is a closed loop for 2026 ESA pesticide-label steps: plan one field, remind by SMS, confirm in plain language, keep a record — and show the partner who followed through. Same engine as Outturn / AgriNexus; US label domain.",
+            "ESA label follow-through, one field at a time: plan the required practices, remind by text, confirm in plain language, keep a dated receipt — and show the cohort partner who followed through.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -44,9 +44,9 @@
       {
         element: '[data-tour="home-hero"]',
         popover: {
-          title: "You are the partner",
+          title: "You run the cohort",
           description:
-            "Imagine Boone County extension or a PAT training class. You care about a cohort of applicators — not a single static form.",
+            "A training class or an applicator business that stands behind its records. You care about a group of cases — not a single static form.",
         },
       },
       {
@@ -54,15 +54,15 @@
         popover: {
           title: "Follow-through at a glance",
           description:
-            "How many confirmed, how many still waiting. This is what Outturn shows for India cohorts; here it is ESA label work.",
+            "How many planned, reminded, verified, or waiting for review. The legend under the strip defines each status.",
         },
       },
       {
         element: '[data-tour="cohort-board"]',
         popover: {
-          title: "The roster",
+          title: "The case board",
           description:
-            "Example applicators plus any live session you run. Open Inbox on a live row to see the SMS thread.",
+            "Sample applicators for this demonstration. Open a row to see the reminder thread or a finished receipt.",
         },
       },
       {
@@ -70,7 +70,7 @@
         popover: {
           title: "Two roles, one loop",
           description:
-            "Partner watches the board. Applicator checks a field, gets SMS, replies, downloads a record. Next: try Applicator check.",
+            "Cohort partner watches the board. Applicator walks one case: plan, reply, keep the record. Next: Walk one case.",
         },
       },
     ],
@@ -79,7 +79,7 @@
         popover: {
           title: "Step 1 — Plan",
           description:
-            "One question for an extension audience: can this applicator spray this Boone field with Liberty ULTRA? Points, weather, and bulletin actions — in plain language.",
+            "One question: can this applicator spray this Boone field with Liberty ULTRA? Points, weather, and bulletin actions — in plain language.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -93,15 +93,15 @@
         popover: {
           title: "Sample field pack",
           description:
-            "Real EPA Reg. No. 7969-500 and August 2026 bulletin fixtures, marked as sample educational data — not a fake DEMO number.",
+            "Real EPA Reg. No. 7969-500 and a real bulletin for this farm, marked as sample educational data.",
         },
       },
       {
         element: '[data-tour="check-cta"]',
         popover: {
-          title: "Check this application",
+          title: "Check this plan",
           description:
-            "Pick a forecast scenario (calm vs windy) to show the weather gate, then run the plan. Confirm and Receipt unlock after.",
+            "Pick a calm or windy day to show the weather gate, then run the plan. Confirm and Receipt unlock after.",
         },
       },
     ],
@@ -110,7 +110,7 @@
         popover: {
           title: "Step 2 — Confirm",
           description:
-            "SMS-style reminder out; applicator replies in their own words. Use Advance 24 hours in Demo controls for the video.",
+            "Reminder out by text; applicator replies in their own words. Or use the checklist. Demo clock controls advance time for walkthroughs.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -124,7 +124,7 @@
         popover: {
           title: "What they would text",
           description:
-            "Placeholder examples like keeping a creek-side buffer — not keyword DONE.",
+            "Reply in plain language — what was done on the field — not a one-click done.",
         },
       },
     ],
@@ -133,7 +133,7 @@
         popover: {
           title: "Step 3 — Receipt",
           description:
-            "Standalone record for screenshots and the outreach one-pager: status, points, weather, timeline, PDF download.",
+            "Standalone case record: status, points, weather, timeline, verification, and PDF download.",
           showButtons: ["next", "close"],
           showProgress: false,
           nextBtnText: "Show me",
@@ -146,7 +146,7 @@
         element: '[data-tour="download-pdf"]',
         popover: {
           title: "Download the PDF",
-          description: "Primary takeaway for outreach emails.",
+          description: "The artifact that travels on its own.",
         },
       },
     ],

@@ -57,25 +57,24 @@
       <label>
         Forecast scenario
         <select id="weather-scenario" name="weather_scenario">
-          <option value="calm" selected>Calm (fixture) — within label wind limits</option>
-          <option value="windy">Windy (fixture) — shows the weather gate</option>
+          <option value="calm" selected>Calm day (within label wind limit)</option>
+          <option value="windy">Windy day (over the limit)</option>
         </select>
       </label>
       <div class="actions">
-        <button type="submit" id="btn-plan" data-busy-label="Checking…">Check this application</button>
+        <button type="submit" id="btn-plan" data-busy-label="Checking…">Check this plan</button>
       </div>
     </form>
 
     <details class="panel demo-controls">
-      <summary>Demo controls</summary>
-      <p class="muted">For walkthroughs and technical reviewers. Hidden from the main story.</p>
+      <summary>Demo settings</summary>
+      <p class="muted">For technical walkthroughs. Not part of the main story.</p>
       <label class="check">
         <input type="checkbox" id="bedrock" />
-        Plain-language explanations (AI) — needs AWS Bedrock; offline mode skips this
+        Optional model explanations (requires cloud credentials; leave unchecked offline)
       </label>
       <p class="muted" style="margin-top:0.75rem">
-        Fixtures · Liberty ULTRA label + September 2026 BLT at the ISU AEA farm in
-        <code>fixtures/</code>. See README for source URLs.
+        Sample pack: Liberty ULTRA label and Boone County bulletin for the ISU research farm.
       </p>
     </details>
 
@@ -120,8 +119,8 @@
           <p id="calc-copy">Points, wind thresholds, and dates — not AI.</p>
         </article>
         <article class="explain ai">
-          <h3>AI-assisted — reads label and bulletin language</h3>
-          <p id="ai-copy">Suggests practice combinations and interprets confirmation when enabled.</p>
+          <h3>Model layer — off in this demonstration</h3>
+          <p id="ai-copy">Label reading and free-text interpretation are not enabled here.</p>
         </article>
       </div>
 
@@ -137,7 +136,7 @@
     </section>
 
     <footer class="page-footer muted">
-      Sample educational data · Boone / Liberty ULTRA (7969-500) · fixture dates in README
+      Sample educational data · Boone / Liberty ULTRA (7969-500)
     </footer>
   </main>
 
@@ -243,7 +242,7 @@
         const model = plan.model;
         document.getElementById("ai-copy").textContent = model
           ? (model.summary || "Model summary available in technical detail.")
-          : "Offline mode: no AI summary. Calculated rules still apply.";
+          : "Offline: no model summary. Calculated rules still apply.";
 
         document.getElementById("how-out").textContent = JSON.stringify(
           {
