@@ -80,6 +80,21 @@ def test_full_ladder_checklist_close(tmp_path):
     assert closed.receipt_sha256 == receipt_sha256_for_case(closed)
 
 
+def test_receipt_sha256_stable_after_clock_advance_and_reload(tmp_path):
+    store = CaseStore(path=tmp_path / "cases.jsonl")
+    clock.set_override(datetime(2026, 9, 1, tzinfo=timezone.utc))
+    case = store.create(plan(offline=True), planned_spray_date="2026-09-15")
+    anchor = compute_anchor(case)
+    clock.set_override(anchor + timedelta(hours=72))
+    tick(store)
+    closed = store.close(case.case_id)
+    assert closed.receipt_sha256
+    clock.set_override(anchor + timedelta(hours=96))
+    reloaded = store.get(closed.case_id)
+    assert reloaded is not None
+    assert receipt_sha256_for_case(reloaded) == reloaded.receipt_sha256
+
+
 def test_expiry_close(tmp_path):
     store = CaseStore(path=tmp_path / "cases.jsonl")
     clock.set_override(datetime(2026, 9, 1, tzinfo=timezone.utc))

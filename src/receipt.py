@@ -183,11 +183,12 @@ def build_receipt_payload(case: ComplianceCase) -> dict[str, Any]:
 def receipt_sha256_for_case(case: ComplianceCase) -> str:
     """Hash the immutable case record (identity, plan, events, outcomes).
 
-    Live generation fields (`receipt_generated_at`, `demo_clock`) are excluded
-    so a printed SHA-256 still verifies after the clock advances.
+    Live generation fields (`receipt_generated_at`, `demo_clock`) and
+    `updated_at` (rewritten by store persistence after the hash is taken at
+    close) are excluded so a printed SHA-256 still verifies after reload.
     """
     payload = build_receipt_payload(case)
-    for key in ("receipt_sha256", "receipt_generated_at", "demo_clock"):
+    for key in ("receipt_sha256", "receipt_generated_at", "demo_clock", "updated_at"):
         payload.pop(key, None)
     blob = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
