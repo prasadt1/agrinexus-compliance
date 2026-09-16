@@ -54,6 +54,17 @@
       </div>
     </section>
 
+    <section class="split-explain role-boxes" data-tour="roles">
+      <article class="explain calc">
+        <h3>You run the cohort</h3>
+        <p>See who followed through. Settle the unclear ones. Keep the receipts.</p>
+      </article>
+      <article class="explain ai">
+        <h3>You are applying</h3>
+        <p>One field, one product. Get reminded, reply in your own words, keep the record.</p>
+      </article>
+    </section>
+
     <section class="metric-row count-strip" data-tour="cohort-stats" id="cohort-stats">
       <div class="metric"><span class="label">Planned</span><span class="value" id="stat-planned">—</span></div>
       <div class="metric"><span class="label">Reminded</span><span class="value" id="stat-nudged">—</span></div>
@@ -69,6 +80,15 @@
         <span class="sub">verified ÷ (total − blocked)</span>
       </div>
     </section>
+    <p class="status-legend" data-tour="status-legend">
+      Planned = plan issued, spray date not reached ·
+      Reminded = text sent, no reply ·
+      Needs review = reply contradicts plan ·
+      Verified = reply matched plan ·
+      Expired = no reply by 72 h ·
+      Blocked = plan failed weather or points ·
+      Closed = case finished with a receipt
+    </p>
 
     <section class="record-block" data-tour="cohort-board">
       <h2>Boone County training cohort · sample</h2>
@@ -86,6 +106,9 @@
           <tbody id="cohort-body"></tbody>
         </table>
       </div>
+      <p class="muted cohort-caption">
+        These are sample applicators with sample numbers. Add one to watch a case appear.
+      </p>
     </section>
 
     <dialog id="review-dialog">
@@ -102,17 +125,6 @@
         </div>
       </form>
     </dialog>
-
-    <section class="split-explain" data-tour="roles">
-      <article class="explain calc">
-        <h3>Partner (you)</h3>
-        <p>See the board. Review unclear replies. Close verified or expired cases and keep receipts.</p>
-      </article>
-      <article class="explain ai">
-        <h3>Applicator</h3>
-        <p>Check one field + product, get SMS reminders, reply what they did, download a record.</p>
-      </article>
-    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.5/dist/driver.js.iife.js"></script>
