@@ -112,6 +112,15 @@
         <ul class="timeline" id="timeline"></ul>
       </div>
 
+      <div class="record-block">
+        <h2>Record integrity</h2>
+        <p id="integrity-doc" class="muted">
+          Field-level documentation earns one mitigation point under EPA's runoff and erosion
+          mitigation menu (EPA Herbicide Strategy / Insecticide Strategy mitigation measures).
+        </p>
+        <p id="integrity-hash" class="muted">SHA-256 · Kept for two years.</p>
+      </div>
+
       <div class="split-explain">
         <article class="explain calc">
           <h3>Calculated by rules — auditable arithmetic</h3>
@@ -211,9 +220,14 @@
           renderTimeline(document.getElementById("timeline"), data.events);
           document.getElementById("calc-copy").textContent =
             "Point arithmetic and weather gate are rule-based (auditable).";
-          document.getElementById("ai-copy").textContent = conf
-            ? `Confirmation interpreted via ${conf.layer || "rules/model"}.`
-            : "No confirmation interpretation yet.";
+          document.getElementById("ai-copy").textContent =
+            "Model layer is not enabled in this demonstration.";
+          const hashEl = document.getElementById("integrity-hash");
+          if (hashEl) {
+            hashEl.textContent = data.receipt_sha256
+              ? "SHA-256: " + data.receipt_sha256 + " · Kept for two years."
+              : "SHA-256 available after the case is closed · Kept for two years.";
+          }
           document.getElementById("tech-out").textContent = JSON.stringify(data, null, 2);
           live.textContent = "Record loaded: " + statusLabel(data.status);
         } catch (ex) {

@@ -370,6 +370,15 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
     for a in payload.get("bulletin_actions") or []:
         story.append(Paragraph(f"• {_esc(a)}", small))
 
+    story.append(
+        Paragraph(
+            "Field-level documentation earns one mitigation point under EPA's "
+            "runoff and erosion mitigation menu "
+            "(EPA Herbicide Strategy / Insecticide Strategy mitigation measures).",
+            small,
+        )
+    )
+
     story.append(Paragraph("Confirmation as received", h2))
     conf = payload.get("confirmation")
     if conf:
@@ -413,7 +422,12 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
     )
 
     story.append(Paragraph("Record integrity", h2))
-    story.append(Paragraph(f"SHA-256: <font face='Courier'>{_esc(sha)}</font>", small))
+    story.append(
+        Paragraph(
+            f"SHA-256: <font face='Courier'>{_esc(sha)}</font> · Kept for two years.",
+            small,
+        )
+    )
     story.append(Spacer(1, 8))
     story.append(Paragraph(DISCLAIMER, small))
 
