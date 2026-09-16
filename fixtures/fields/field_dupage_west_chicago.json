@@ -1,0 +1,15 @@
+{
+  "field_id": "dupage-il-west-chicago-prairie",
+  "name": "West Chicago Prairie vicinity — DuPage County",
+  "state": "IL",
+  "county": "DuPage",
+  "lat": 41.8891,
+  "lon": -88.2233,
+  "irrigated": false,
+  "practices": [
+    "mitigation_tracking",
+    "grassed_waterway"
+  ],
+  "notes": "Contrast field for Item 2. Practices are intentionally modest so the PULA's +3 runoff points produce POINTS_SHORT (3 earned vs 6 required). Coordinates 41.8891 N, 88.2233 W are the click point used for the 2026-09-17 Bulletins Live! Two print for STRYAX 264-1241 (West Chicago Prairie / Dyer Nature Sanctuary area).",
+  "source_url": "https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins"
+}

@@ -1,0 +1,28 @@
+{
+  "fixture_id": "blt-dupage-il-264-1241-2026-09",
+  "county": "DuPage",
+  "state": "IL",
+  "lat": 41.8891,
+  "lon": -88.2233,
+  "application_month": "2026-09",
+  "epa_reg_no": "264-1241",
+  "product_name": "STRYAX HERBICIDE",
+  "pula_active": true,
+  "pula_id": "123",
+  "pula_event_name": "Dicamba 2026",
+  "pula_code": "DC125",
+  "pula_extra_points": 3,
+  "pula_notes": "Code DC125 from Printed Bulletin Codes and Limitations Table: This crop use is located within a PULA. Therefore, 3 ADDITIONAL points (for a total of 6 points) of runoff/erosion mitigations must be achieved for this crop use using the Mitigation Menu (https://www.epa.gov/pesticides/mitigation-menu).",
+  "actions": [
+    "This crop use is located within a PULA. Therefore, 3 ADDITIONAL points (for a total of 6 points) of runoff/erosion mitigations must be achieved for this crop use using the Mitigation Menu (https://www.epa.gov/pesticides/mitigation-menu).",
+    "Follow the use instructions on your label.",
+    "Ensure that your pesticide application area is within the printed map view. If it is not, follow the directions on the Instructions Tab to ensure that your pesticide application area is captured within the printed map view."
+  ],
+  "source": "https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins",
+  "bulletin_pdf": "fixtures/bulletins/blt-dupage-il-264-1241-2026-09.pdf",
+  "date_printed": "2026-09-17T00:03:14",
+  "retrieved": "2026-09-17",
+  "field_name": "West Chicago Prairie vicinity — DuPage County",
+  "label_source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf",
+  "disclaimer": "Transcribed from the EPA Bulletins Live! Two Printable Bulletin PDF only. Coordinates 41.8891 N, 88.2233 W are the click point used for that print (West Chicago Prairie / Dyer Nature Sanctuary area). Not legal advice."
+}

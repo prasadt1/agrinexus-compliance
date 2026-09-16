@@ -1,0 +1,16 @@
+{
+  "epa_reg_no": "264-1241",
+  "product_name": "Stryax Herbicide",
+  "registrant_product_name": "STRYAX HERBICIDE",
+  "alternate_names": ["KHNP0090 Herbicide"],
+  "required_runoff_points": 3,
+  "pula_extra_points": 3,
+  "requires_bulletins_live_two": true,
+  "max_wind_mph": 15,
+  "no_rain_hours_before": 1,
+  "excerpt_markdown_path": null,
+  "source_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
+  "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf",
+  "retrieved": "2026-08-23",
+  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. PULA extra points come from the Printed Bulletin (DC125), not from this label JSON alone."
+}
