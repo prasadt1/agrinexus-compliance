@@ -42,6 +42,7 @@ class PlanRequest(BaseModel):
     create_case: bool = True
     applicator_name: Optional[str] = None
     phone: Optional[str] = None
+    is_example: bool = False
 
 
 class ConfirmRequest(BaseModel):
@@ -106,6 +107,7 @@ def api_plan(body: PlanRequest) -> dict[str, Any]:
             planned_spray_date=body.planned_spray_date,
             applicator_name=(body.applicator_name or "").strip(),
             phone=body.phone,
+            is_example=bool(body.is_example),
         )
         out["case"] = case.as_dict()
     return out

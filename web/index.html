@@ -110,6 +110,11 @@
       <p class="muted cohort-caption">
         These are sample applicators with sample numbers. Add one to watch a case appear.
       </p>
+      <div class="actions" style="margin-top:0.75rem">
+        <button type="button" class="button secondary" id="add-sample-applicator">
+          Add a sample applicator
+        </button>
+      </div>
     </section>
 
     <dialog id="review-dialog">
@@ -184,7 +189,7 @@
       (data.members || []).forEach((m) => {
         const tr = document.createElement("tr");
         const live = !!m.case_id;
-        const tag = m.is_example || m.is_seed ? "· example" : "· live";
+        const tag = m.is_example || m.is_seed ? "· sample" : "· sample";
         tr.innerHTML = `
           <td>
             <strong>${m.name || "—"}</strong>
@@ -258,6 +263,30 @@
       });
       document.getElementById("review-dialog").close();
       await loadCohort();
+    });
+
+    document.getElementById("add-sample-applicator").addEventListener("click", async (e) => {
+      const btn = e.currentTarget;
+      setBusy(btn, true, "Add a sample applicator");
+      try {
+        const n = String(10 + Math.floor(Math.random() * 89));
+        await api("/api/plan", {
+          method: "POST",
+          body: JSON.stringify({
+            create_case: true,
+            is_example: true,
+            applicator_name: "Sample applicator " + n,
+            phone: "+1 (555) 555-01" + n,
+            bedrock: false,
+            windy: false,
+          }),
+        });
+        await loadCohort();
+      } catch (ex) {
+        document.getElementById("cohort-meta").textContent = String(ex.message || ex);
+      } finally {
+        setBusy(btn, false, "Add a sample applicator");
+      }
     });
 
     loadCohort().catch((ex) => {

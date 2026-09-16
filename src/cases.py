@@ -131,6 +131,7 @@ class CaseStore:
         planned_spray_date: str | None = None,
         applicator_name: str | None = None,
         phone: str | None = None,
+        is_example: bool = False,
     ) -> ComplianceCase:
         now = _utc_now()
         plan_status = plan.get("status")
@@ -152,6 +153,7 @@ class CaseStore:
             confirmation=None,
             anchor_at=anchor_at,
             nudge_count=0,
+            is_example=bool(is_example),
             events=[
                 {
                     "at": now,
