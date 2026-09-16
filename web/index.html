@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Boone County Pilot — AgriNexus Compliance</title>
+  <title>ESA label follow-through — AgriNexus Compliance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -36,16 +36,21 @@
 
   <main class="layout">
     <section class="welcome" data-tour="home-hero">
-      <p class="eyebrow">Partner view · Boone County pilot</p>
-      <h1>See who followed through on ESA label steps</h1>
+      <h1>ESA label follow-through, one field at a time.</h1>
+      <p class="lede-sub">The record your label already makes you keep, filled in from one reply.</p>
       <p class="lede">
-        You run a county or training program. Applicators get a plan for one field and product,
-        a reminder by SMS, and a place to confirm what they did. You see the cohort —
-        who planned, who was reminded, who verified — the same closed loop as Outturn / AgriNexus.
+        When a pesticide label sends you to Bulletins Live! Two and asks for mitigation points,
+        EPA's PALM app and the commercial calculators do the math and stop. This starts where they
+        stop: the applicator replies to one text, the reply is checked against the plan, and a dated
+        receipt is kept for the years the label requires. Use whatever calculated your plan; nothing
+        here replaces it. Below is a sample cohort so you can see every stage.
+      </p>
+      <p class="loop-strip" aria-label="Case loop">
+        Plan → Remind → Confirm → Verify → Close → Receipt
       </p>
       <div class="actions">
-        <a class="button" href="/check.html">Open applicator check (try one session)</a>
-        <button type="button" class="button ghost" data-tour-trigger>90-second tour</button>
+        <a class="button" href="/check.html">Walk one case</a>
+        <a class="button ghost" href="#" id="open-finished-receipt">Open a finished receipt</a>
       </div>
     </section>
 
@@ -66,7 +71,7 @@
     </section>
 
     <section class="record-block" data-tour="cohort-board">
-      <h2>Boone County ESA label pilot</h2>
+      <h2>Boone County training cohort · sample</h2>
       <p class="muted" id="cohort-meta">Loading…</p>
       <div class="table-wrap">
         <table class="cohort-table" id="cohort-table">
@@ -244,6 +249,21 @@
 
     loadCohort().catch((ex) => {
       document.getElementById("cohort-meta").textContent = String(ex.message || ex);
+    }).then(async () => {
+      try {
+        const data = await api("/api/cohort");
+        const finished = (data.members || []).find(
+          (m) => m.status === "CLOSED" && m.outcome === "verified" && m.case_id
+        );
+        const link = document.getElementById("open-finished-receipt");
+        if (link && finished) {
+          link.href = "/receipt.html?case_id=" + encodeURIComponent(finished.case_id);
+        } else if (link) {
+          link.hidden = true;
+        }
+      } catch {
+        /* ignore */
+      }
     });
   </script>
 </body>
