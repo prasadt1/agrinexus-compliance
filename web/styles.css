@@ -222,6 +222,26 @@ a { color: var(--accent); }
   margin: 0.75rem 0 0;
 }
 
+.about-page .about-loop {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.about-page .about-loop li {
+  margin: 0 0 0.55rem;
+}
+
+.about-page .gap-compare {
+  margin: 1.25rem 0;
+}
+
+.enrollment-caption {
+  margin: 1rem 0;
+  font-style: italic;
+}
+
 .bridge {
   margin: 0 0 1rem;
   padding: 0.7rem 0.85rem;
