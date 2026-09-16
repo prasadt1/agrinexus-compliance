@@ -18,6 +18,26 @@ from . import weather as weather_mod
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Named fixture packs: Boone (no PULA) vs DuPage Stryax (PULA +3 → POINTS_SHORT).
+PACKS: dict[str, dict[str, Path]] = {
+    "boone_liberty": {
+        "field": ROOT / "fixtures" / "fields" / "field_boone.json",
+        "label": ROOT / "fixtures" / "labels" / "7969-500.json",
+        "bulletin": ROOT
+        / "fixtures"
+        / "bulletins"
+        / "blt-boone-ia-7969-500-2026-09.json",
+    },
+    "dupage_stryax_pula": {
+        "field": ROOT / "fixtures" / "fields" / "field_dupage_west_chicago.json",
+        "label": ROOT / "fixtures" / "labels" / "264-1241.json",
+        "bulletin": ROOT
+        / "fixtures"
+        / "bulletins"
+        / "blt-dupage-il-264-1241-2026-09.json",
+    },
+}
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as f:
@@ -33,7 +53,15 @@ def load_bundle(
     label_path: Path | None = None,
     bulletin_path: Path | None = None,
     menu_path: Path | None = None,
+    pack: str | None = None,
 ) -> dict[str, Any]:
+    if pack:
+        if pack not in PACKS:
+            raise ValueError(f"unknown fixture pack: {pack}")
+        paths = PACKS[pack]
+        field_path = field_path or paths["field"]
+        label_path = label_path or paths["label"]
+        bulletin_path = bulletin_path or paths["bulletin"]
     field_path = field_path or ROOT / "fixtures" / "fields" / "field_boone.json"
     label_path = label_path or ROOT / "fixtures" / "labels" / "7969-500.json"
     bulletin_path = (
@@ -50,12 +78,26 @@ def load_bundle(
         if excerpt_path.exists():
             excerpt = _read_text(excerpt_path)
 
+    bulletin = _load_json(bulletin_path)
+
+    def _rel(p: Path) -> str:
+        try:
+            return str(p.relative_to(ROOT))
+        except ValueError:
+            return str(p)
+
     return {
         "field": _load_json(field_path),
         "label": label,
         "label_excerpt": excerpt,
-        "bulletin": _load_json(bulletin_path),
+        "bulletin": bulletin,
         "menu": _load_json(menu_path),
+        "paths": {
+            "field": _rel(field_path),
+            "label": _rel(label_path),
+            "bulletin": _rel(bulletin_path),
+            "bulletin_pdf": bulletin.get("bulletin_pdf") or "",
+        },
     }
 
 
@@ -70,7 +112,10 @@ def build_deterministic_plan(
 
     required = int(label["required_runoff_points"])
     if bulletin.get("pula_active"):
-        required += int(label.get("pula_extra_points") or 0)
+        extra = bulletin.get("pula_extra_points")
+        if extra is None:
+            extra = label.get("pula_extra_points") or 0
+        required += int(extra)
 
     scored = points_mod.score_field(
         field.get("practices") or [],
@@ -90,6 +135,16 @@ def build_deterministic_plan(
 
     apply_allowed = gate.ok and scored.shortfall == 0
     status = "APPLY_OK" if apply_allowed else ("WEATHER_BLOCK" if not gate.ok else "POINTS_SHORT")
+
+    paths = bundle.get("paths") or {}
+    citations = [
+        "fixtures/mitigation_menu.json",
+        paths.get("label") or str(label.get("excerpt_markdown_path") or "fixtures/labels/"),
+        paths.get("bulletin") or "",
+    ]
+    if paths.get("bulletin_pdf"):
+        citations.append(paths["bulletin_pdf"])
+    citations = [c for c in citations if c]
 
     return {
         "status": status,
@@ -111,6 +166,10 @@ def build_deterministic_plan(
             "name": field.get("name"),
         },
         "bulletin_actions": bulletin.get("actions") or [],
+        "pula_active": bool(bulletin.get("pula_active")),
+        "pula_extra_points": int(bulletin.get("pula_extra_points") or 0)
+        if bulletin.get("pula_active")
+        else 0,
         "points": scored.as_dict(),
         "recommended_additions": additions,
         "weather": {
@@ -118,12 +177,7 @@ def build_deterministic_plan(
             **gate.as_dict(),
             "max_wind_mph": float(label.get("max_wind_mph", 10)),
         },
-        "citations": [
-            "fixtures/mitigation_menu.json",
-            str(label.get("excerpt_markdown_path") or "fixtures/labels/"),
-            "fixtures/bulletins/blt-boone-ia-7969-500-2026-09.json",
-            "fixtures/bulletins/blt-boone-ia-7969-500-2026-09.pdf",
-        ],
+        "citations": citations,
         "layers": {
             "deterministic": ["points", "weather", "status"],
             "model": [],
@@ -231,8 +285,15 @@ def plan(
     windy: bool = False,
     field_path: Path | None = None,
     label_path: Path | None = None,
+    bulletin_path: Path | None = None,
+    pack: str | None = None,
 ) -> dict[str, Any]:
-    bundle = load_bundle(field_path=field_path, label_path=label_path)
+    bundle = load_bundle(
+        field_path=field_path,
+        label_path=label_path,
+        bulletin_path=bulletin_path,
+        pack=pack,
+    )
     snap = weather_mod.FIXTURE_WINDY if windy else weather_mod.FIXTURE_CALM
     result = build_deterministic_plan(bundle, snap)
     if not offline:
