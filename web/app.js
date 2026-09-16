@@ -54,13 +54,18 @@ function statusLabel(code, outcome) {
 
 function eventLabel(ev) {
   if (!ev) return "—";
+  if (ev.type === "reminder_simulated" || ev.type === "reminder_sent") {
+    const data = ev.data || {};
+    const byPartner =
+      ev.actor === "partner" || data.sent_by === "partner";
+    const base = byPartner
+      ? "Reminder sent by partner"
+      : "Reminder sent on schedule";
+    if (ev.which) return `${base} (${ev.which})`;
+    if (data.nudge_count) return `${base} (#${data.nudge_count})`;
+    return base;
+  }
   const base = EVENT_LABELS[ev.type] || ev.type;
-  if ((ev.type === "reminder_simulated" || ev.type === "reminder_sent") && ev.which) {
-    return `${base} (${ev.which})`;
-  }
-  if (ev.type === "reminder_sent" && ev.data && ev.data.nudge_count) {
-    return `${base} (#${ev.data.nudge_count})`;
-  }
   return base;
 }
 

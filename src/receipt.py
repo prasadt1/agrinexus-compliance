@@ -82,10 +82,20 @@ def timeline_entries(case: ComplianceCase) -> list[dict[str, Any]]:
         outbound = ev.get("outbound_message") or (ev.get("data") or {}).get(
             "outbound_message"
         )
+        data = ev.get("data") or {}
+        label = ev.get("type")
+        if ev.get("type") in {"reminder_sent", "reminder_simulated"}:
+            by_partner = ev.get("actor") == "partner" or data.get("sent_by") == "partner"
+            label = (
+                "Reminder sent by partner"
+                if by_partner
+                else "Reminder sent on schedule"
+            )
         rows.append(
             {
                 "at": ev.get("at"),
                 "type": ev.get("type"),
+                "label": label,
                 "actor": ev.get("actor"),
                 "detail": ev.get("detail"),
                 "elapsed_from_previous": _elapsed_label(prev, at),
@@ -288,9 +298,10 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
     story.append(Paragraph("Timeline", h2))
     for ev in payload.get("timeline") or []:
         elapsed = ev.get("elapsed_from_previous") or "start"
+        label = ev.get("label") or ev.get("type")
         story.append(
             Paragraph(
-                f"• [{_esc(ev.get('at'))}] <b>{_esc(ev.get('type'))}</b> "
+                f"• [{_esc(ev.get('at'))}] <b>{_esc(label)}</b> "
                 f"({_esc(elapsed)}) — {_esc(ev.get('detail'))}",
                 body,
             )

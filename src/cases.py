@@ -213,12 +213,13 @@ class CaseStore:
             {
                 "at": now,
                 "type": "reminder_sent",
-                "actor": "system",
+                "actor": "partner",
                 "detail": outbound,
                 "data": {
                     "nudge_count": case.nudge_count,
                     "channel": "sms",
                     "outbound_message": outbound,
+                    "sent_by": "partner",
                 },
                 "which": label,
                 "channel": "sms",

@@ -230,8 +230,19 @@
           a.style.padding = "0.35rem 0.65rem";
           a.style.fontSize = "0.82rem";
           a.href = "/confirm.html?case_id=" + encodeURIComponent(m.case_id);
-          a.textContent = "Open inbox";
+          a.textContent = "Open case";
           actions.appendChild(a);
+          if (m.status === "PLANNED" || m.status === "NUDGED") {
+            actions.appendChild(
+              actionButton("Send reminder now", async () => {
+                await api("/api/cases/" + encodeURIComponent(m.case_id) + "/nudge", {
+                  method: "POST",
+                  body: JSON.stringify({ which: "T+24" }),
+                });
+                await loadCohort();
+              })
+            );
+          }
         }
         body.appendChild(tr);
       });

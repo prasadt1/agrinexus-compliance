@@ -74,6 +74,7 @@ def _append_reminder(case: ComplianceCase, which: str, at: datetime) -> None:
                 "nudge_count": count,
                 "channel": "sms",
                 "outbound_message": outbound,
+                "sent_by": "schedule",
             },
             # Compat with current receipt / UI until rebuild
             "which": which,
