@@ -18,7 +18,7 @@ from . import weather as weather_mod
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Named fixture packs: Boone (no PULA) vs DuPage Stryax (PULA +3 → POINTS_SHORT).
+# Named fixture packs: Boone (no PULA) vs McHenry Stryax (PULA + IL cutoff).
 PACKS: dict[str, dict[str, Path]] = {
     "boone_liberty": {
         "field": ROOT / "fixtures" / "fields" / "field_boone.json",
@@ -28,15 +28,17 @@ PACKS: dict[str, dict[str, Path]] = {
         / "bulletins"
         / "blt-boone-ia-7969-500-2026-09.json",
     },
-    "dupage_stryax_pula": {
-        "field": ROOT / "fixtures" / "fields" / "field_dupage_west_chicago.json",
+    "mchenry_stryax_pula": {
+        "field": ROOT / "fixtures" / "fields" / "field_mchenry_twin_creeks.json",
         "label": ROOT / "fixtures" / "labels" / "264-1241.json",
         "bulletin": ROOT
         / "fixtures"
         / "bulletins"
-        / "blt-dupage-il-264-1241-2026-09.json",
+        / "blt-mchenry-il-264-1241-2026-09.json",
     },
 }
+# Alias kept so older demo bookmarks / notes still resolve.
+PACKS["dupage_stryax_pula"] = PACKS["mchenry_stryax_pula"]
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -101,9 +103,80 @@ def load_bundle(
     }
 
 
+def _parse_mmdd(mmdd: str) -> tuple[int, int]:
+    month_s, day_s = mmdd.split("-", 1)
+    return int(month_s), int(day_s)
+
+
+def _application_ymd(
+    planned_spray_date: str | None,
+    bulletin: dict[str, Any],
+) -> tuple[int, int, int] | None:
+    """Return (year, month, day) for cutoff checks, or None if unknown."""
+    if planned_spray_date:
+        parts = planned_spray_date.strip()[:10].split("-")
+        if len(parts) == 3:
+            return int(parts[0]), int(parts[1]), int(parts[2])
+    app_month = (bulletin.get("application_month") or "").strip()
+    if len(app_month) >= 7 and app_month[4] == "-":
+        # Bulletin months are YYYY-MM; treat as the first day of that month
+        # for "after June 20" comparisons (September ⇒ after cutoff).
+        return int(app_month[0:4]), int(app_month[5:7]), 1
+    return None
+
+
+def evaluate_state_cutoff(
+    label: dict[str, Any],
+    field: dict[str, Any],
+    bulletin: dict[str, Any],
+    planned_spray_date: str | None = None,
+) -> dict[str, Any] | None:
+    """
+    Label state-specific calendar cutoffs (e.g. Illinois dicamba on soybean).
+    Returns a block dict when the planned/bulletin date is past the cutoff.
+    """
+    state = (field.get("state") or "").upper()
+    cutoffs = (label.get("state_cutoffs") or {}).get(state) or {}
+    crop_use = (field.get("crop_use") or "").lower()
+    rule = None
+    crop_key = None
+    if "soybean" in crop_use and "soybean" in cutoffs:
+        crop_key = "soybean"
+        rule = cutoffs["soybean"]
+    if not rule:
+        return None
+    mmdd = rule.get("cutoff_mmdd") if isinstance(rule, dict) else rule
+    if not mmdd:
+        return None
+    ymd = _application_ymd(planned_spray_date, bulletin)
+    if not ymd:
+        return None
+    year, month, day = ymd
+    cut_m, cut_d = _parse_mmdd(str(mmdd))
+    if (month, day) <= (cut_m, cut_d):
+        return None
+    quote = ""
+    if isinstance(rule, dict):
+        quote = rule.get("source_quote") or ""
+    return {
+        "blocked": True,
+        "state": state,
+        "crop": crop_key,
+        "cutoff_mmdd": str(mmdd),
+        "application_date": f"{year:04d}-{month:02d}-{day:02d}",
+        "message": (
+            f"This label does not allow dicamba on soybean in {state} after "
+            f"{cut_m}/{cut_d}. Do not apply."
+        ),
+        "source_quote": quote,
+        "layer": "deterministic",
+    }
+
+
 def build_deterministic_plan(
     bundle: dict[str, Any],
     weather_snap: weather_mod.WeatherSnapshot,
+    planned_spray_date: str | None = None,
 ) -> dict[str, Any]:
     label = bundle["label"]
     field = bundle["field"]
@@ -127,14 +200,35 @@ def build_deterministic_plan(
         required_points=required,
         menu=menu,
     )
+
+    rain_hours = label.get("no_rain_hours_before")
     gate = weather_mod.evaluate_weather(
         weather_snap,
         max_wind_mph=float(label.get("max_wind_mph", 10)),
-        no_rain_hours_before=float(label.get("no_rain_hours_before", 1)),
+        no_rain_hours_before=(
+            None if rain_hours is None else float(rain_hours)
+        ),
+        min_wind_mph=(
+            float(label["min_wind_mph"])
+            if label.get("min_wind_mph") is not None
+            else None
+        ),
     )
 
-    apply_allowed = gate.ok and scored.shortfall == 0
-    status = "APPLY_OK" if apply_allowed else ("WEATHER_BLOCK" if not gate.ok else "POINTS_SHORT")
+    cutoff = evaluate_state_cutoff(
+        label, field, bulletin, planned_spray_date=planned_spray_date
+    )
+
+    # Precedence: label date cutoff → weather → points. Points still render
+    # under a cutoff block so the PULA lesson remains visible.
+    if cutoff:
+        status = "LABEL_DATE_BLOCK"
+    elif not gate.ok:
+        status = "WEATHER_BLOCK"
+    elif scored.shortfall == 0:
+        status = "APPLY_OK"
+    else:
+        status = "POINTS_SHORT"
 
     paths = bundle.get("paths") or {}
     citations = [
@@ -146,6 +240,14 @@ def build_deterministic_plan(
         citations.append(paths["bulletin_pdf"])
     citations = [c for c in citations if c]
 
+    product = {
+        "epa_reg_no": label.get("epa_reg_no"),
+        "product_name": label.get("product_name"),
+        "requires_bulletins_live_two": label.get("requires_bulletins_live_two"),
+        "max_wind_mph": label.get("max_wind_mph"),
+        "min_wind_mph": label.get("min_wind_mph"),
+    }
+
     return {
         "status": status,
         "disclaimer": (
@@ -153,33 +255,43 @@ def build_deterministic_plan(
             "The pesticide label and Bulletins Live! Two control. "
             "Strategies are frameworks applied at registration — labels bind."
         ),
-        "product": {
-            "epa_reg_no": label.get("epa_reg_no"),
-            "product_name": label.get("product_name"),
-            "requires_bulletins_live_two": label.get("requires_bulletins_live_two"),
-            "max_wind_mph": label.get("max_wind_mph"),
-        },
+        "product": product,
         "field": {
             "field_id": field.get("field_id"),
             "county": field.get("county"),
             "state": field.get("state"),
             "name": field.get("name"),
+            "township": field.get("township"),
+            "lat": field.get("lat"),
+            "lon": field.get("lon"),
+            "use_frame": field.get("use_frame"),
+            "crop_use": field.get("crop_use"),
         },
         "bulletin_actions": bulletin.get("actions") or [],
+        "bulletin_meta": {
+            "application_month": bulletin.get("application_month"),
+            "date_printed": bulletin.get("date_printed"),
+            "pdf_md5": bulletin.get("pdf_md5"),
+            "pdf_creation": bulletin.get("pdf_creation"),
+            "bulletin_pdf": bulletin.get("bulletin_pdf"),
+            "coordinate_note": bulletin.get("coordinate_note"),
+        },
         "pula_active": bool(bulletin.get("pula_active")),
         "pula_extra_points": int(bulletin.get("pula_extra_points") or 0)
         if bulletin.get("pula_active")
         else 0,
+        "label_date_cutoff": cutoff,
         "points": scored.as_dict(),
         "recommended_additions": additions,
         "weather": {
             **weather_snap.as_dict(),
             **gate.as_dict(),
             "max_wind_mph": float(label.get("max_wind_mph", 10)),
+            "min_wind_mph": label.get("min_wind_mph"),
         },
         "citations": citations,
         "layers": {
-            "deterministic": ["points", "weather", "status"],
+            "deterministic": ["label_date_cutoff", "points", "weather", "status"],
             "model": [],
         },
     }
@@ -287,6 +399,7 @@ def plan(
     label_path: Path | None = None,
     bulletin_path: Path | None = None,
     pack: str | None = None,
+    planned_spray_date: str | None = None,
 ) -> dict[str, Any]:
     bundle = load_bundle(
         field_path=field_path,
@@ -295,7 +408,9 @@ def plan(
         pack=pack,
     )
     snap = weather_mod.FIXTURE_WINDY if windy else weather_mod.FIXTURE_CALM
-    result = build_deterministic_plan(bundle, snap)
+    result = build_deterministic_plan(
+        bundle, snap, planned_spray_date=planned_spray_date
+    )
     if not offline:
         result = enrich_with_bedrock(result, bundle)
     return result

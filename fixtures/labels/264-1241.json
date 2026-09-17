@@ -6,11 +6,30 @@
   "required_runoff_points": 3,
   "pula_extra_points": 3,
   "requires_bulletins_live_two": true,
-  "max_wind_mph": 15,
-  "no_rain_hours_before": 1,
+  "min_wind_mph": 3,
+  "max_wind_mph": 10,
+  "no_rain_hours_before": null,
+  "source_quotes": {
+    "min_wind_mph": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
+    "max_wind_mph": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
+    "no_rain_hours_before": "DO NOT apply during rain.",
+    "state_cutoffs.IL.soybean": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year."
+  },
+  "state_cutoffs": {
+    "IL": {
+      "soybean": {
+        "cutoff_mmdd": "06-20",
+        "source_quote": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year.",
+        "label_section": "ILLINOIS SPECIFIC RESTRICTIONS",
+        "label_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
+        "label_page": 36
+      }
+    }
+  },
   "excerpt_markdown_path": null,
   "source_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
   "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf",
   "retrieved": "2026-08-23",
-  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. PULA extra points come from the Printed Bulletin (DC125), not from this label JSON alone."
+  "fixture_corrected": "2026-09-17",
+  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Wind 3–10 mph and Illinois June 20 soybean cutoff are transcribed from the EPA label PDF. PULA extra points come from the Printed Bulletin (DC125), not from this label JSON alone. no_rain_hours_before is null because the label states DO NOT apply during rain without a numeric dry-window hours figure."
 }

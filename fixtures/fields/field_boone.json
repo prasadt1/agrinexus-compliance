@@ -12,6 +12,7 @@
     "non_irrigated",
     "grassed_waterway"
   ],
-  "notes": "Practices follow Iowa State ICM Table 1 (Anderson, 11 March 2026). Location is the ISU Agricultural Engineering/Agronomy Research Farm (1308 U Ave area, Boone County), chosen for the demo so the Bulletins Live! Two map shows cropped fields rather than a town centroid. Address reference: https://farms.cals.iastate.edu/project/agricultural-engineeringagronomy-and-central-iowa-research-farms",
+  "notes": "Practices follow Iowa State ICM Table 1 (Anderson, 11 March 2026). Location is the ISU Agricultural Engineering/Agronomy Research Farm (1308 U Ave area, Boone County), chosen for the demo so the Bulletins Live! Two map shows cropped fields rather than a town centroid. Address reference: https://farms.cals.iastate.edu/project/agricultural-engineeringagronomy-and-central-iowa-research-farms. September bulletin month is framed as post-harvest burndown / fallow (Liberty ULTRA label allows burndown prior to planting and use as a substitute for tillage in fallow fields) — not in-crop soybean through R1.",
+  "use_frame": "post-harvest burndown, fallow",
   "source_url": "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements"
 }

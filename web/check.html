@@ -42,7 +42,7 @@
       <h1>Can this field be sprayed with this product?</h1>
       <p class="lede" data-tour="summary" id="demo-pack">
         Choose a sample pack below. Boone / Liberty ULTRA has no PULA.
-        DuPage / Stryax shows a real PULA that adds runoff points.
+        McHenry / Stryax shows a real PULA that adds runoff points, plus an Illinois label date cutoff for September.
         <span class="sample-badge">Sample data — educational demo</span>
       </p>
     </section>
@@ -54,8 +54,8 @@
           <option value="boone_liberty" selected>
             Boone County, IA · Liberty ULTRA (7969-500) · no PULA
           </option>
-          <option value="dupage_stryax_pula">
-            DuPage County, IL · Stryax (264-1241) · PULA +3 points
+          <option value="mchenry_stryax_pula">
+            McHenry County, IL · Stryax (264-1241) · PULA +3 · IL June 20 cutoff
           </option>
         </select>
       </label>
@@ -89,6 +89,12 @@
       </div>
 
       <div class="human-cards">
+        <article class="human-card" id="cutoff-card" hidden>
+          <h3>Label date</h3>
+          <p id="cutoff-human"></p>
+          <p class="muted" id="cutoff-quote" hidden></p>
+        </article>
+
         <article class="human-card" id="points-card">
           <h3>Mitigation points</h3>
           <div class="points-grid">
@@ -144,11 +150,11 @@
         Optional model explanations (requires cloud credentials; leave unchecked offline)
       </label>
       <p class="muted" style="margin-top:0.75rem">
-        Sample packs: Boone / Liberty ULTRA (no PULA) and DuPage / Stryax (Printed Bulletin DC125).
+        Sample packs: Boone / Liberty ULTRA (no PULA) and McHenry / Stryax (Printed Bulletin DC125 + Illinois June 20 cutoff).
       </p>
     </details>
 
-    <footer class="page-footer muted">
+    <footer class="page-footer muted" id="pack-footer">
       Sample educational data · Boone / Liberty ULTRA (7969-500)
     </footer>
   </main>
@@ -209,8 +215,31 @@
         document.getElementById("verdict-summary").textContent =
           buildPlanSummarySentence(plan, sprayDate);
 
+        const cutoff = plan.label_date_cutoff;
+        const cutoffCard = document.getElementById("cutoff-card");
+        const cutoffHuman = document.getElementById("cutoff-human");
+        const cutoffQuote = document.getElementById("cutoff-quote");
+        if (cutoff && cutoff.blocked) {
+          cutoffCard.hidden = false;
+          cutoffHuman.textContent = cutoff.message || "Label date cutoff blocks application.";
+          if (cutoff.source_quote) {
+            cutoffQuote.hidden = false;
+            cutoffQuote.textContent = "Label: “" + cutoff.source_quote + "”";
+          } else {
+            cutoffQuote.hidden = true;
+            cutoffQuote.textContent = "";
+          }
+        } else {
+          cutoffCard.hidden = true;
+          cutoffHuman.textContent = "";
+          cutoffQuote.hidden = true;
+        }
+
         const pts = plan.points || {};
         const wx = plan.weather || {};
+        const product = plan.product || {};
+        const maxWind = wx.max_wind_mph ?? product.max_wind_mph ?? "—";
+        const minWind = wx.min_wind_mph ?? product.min_wind_mph;
         document.getElementById("pts-req").textContent = pts.required_points ?? "—";
         document.getElementById("pts-have").textContent = pts.earned_points ?? "—";
         document.getElementById("pts-short").textContent =
@@ -239,12 +268,29 @@
           addsBlock.hidden = true;
         }
 
+        const windRange =
+          minWind != null
+            ? `${minWind}–${maxWind} mph`
+            : `${maxWind} mph`;
         document.getElementById("wx-human").textContent = wx.weather_ok
-          ? `Wind ${wx.wind_mph ?? "—"} mph — within the label limit (15 mph). Forecast scenario: ${windy ? "Windy" : "Calm"}.`
-          : `Do not apply: wind ${wx.wind_mph ?? "—"} mph exceeds the label limit (15 mph). ${(wx.weather_block_reasons || []).join(" ")}`;
+          ? `Wind ${wx.wind_mph ?? "—"} mph — within the label limit (${windRange}). Forecast scenario: ${windy ? "Windy" : "Calm"}.`
+          : `Do not apply: wind ${wx.wind_mph ?? "—"} mph is outside the label limit (${windRange}). ${(wx.weather_block_reasons || []).join(" ")}`;
 
         const bl = document.getElementById("bulletin-list");
         bl.innerHTML = "";
+        const field = plan.field || {};
+        const meta = plan.bulletin_meta || {};
+        if (field.name || (field.lat != null && field.lon != null)) {
+          const li = document.createElement("li");
+          const bits = [];
+          if (field.name) bits.push(field.name);
+          if (field.lat != null && field.lon != null) {
+            bits.push(`${field.lat}, ${field.lon}`);
+          }
+          if (meta.date_printed) bits.push("Bulletin printed " + meta.date_printed);
+          li.innerHTML = "<strong>Field / print:</strong> " + bits.join(" · ");
+          bl.appendChild(li);
+        }
         if (plan.pula_active) {
           const li = document.createElement("li");
           li.innerHTML =
@@ -261,9 +307,13 @@
           bl.appendChild(li);
         });
 
+        const cutoffBit = cutoff && cutoff.blocked
+          ? ` Label date cutoff blocks application (${cutoff.cutoff_mmdd || "cutoff"}).`
+          : "";
         document.getElementById("calc-copy").textContent =
           `Credited practices: ${(practiceNames(pts.credited) || []).join(", ") || "none"}. ` +
-          `Weather gate is rule-based (${wx.weather_ok ? "pass" : "fail"}).`;
+          `Weather gate is rule-based (${wx.weather_ok ? "pass" : "fail"}).` +
+          cutoffBit;
 
         const model = plan.model;
         document.getElementById("ai-copy").textContent = model
@@ -273,6 +323,7 @@
         document.getElementById("how-out").textContent = JSON.stringify(
           {
             status: plan.status,
+            label_date_cutoff: cutoff || null,
             points: pts,
             weather: wx,
             recommended_additions: adds,
@@ -284,6 +335,16 @@
           null,
           2
         );
+
+        const footer = document.getElementById("pack-footer");
+        if (footer) {
+          const reg = product.epa_reg_no || "";
+          const pname = product.product_name || "sample pack";
+          const place = [field.county, field.state].filter(Boolean).join(", ");
+          footer.textContent =
+            `Sample educational data · ${place || "Field"} · ${pname}` +
+            (reg ? ` (${reg})` : "");
+        }
 
         document.getElementById("to-confirm").href =
           "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);

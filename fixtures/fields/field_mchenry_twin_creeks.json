@@ -1,0 +1,17 @@
+{
+  "field_id": "mchenry-il-twin-creeks-parcel",
+  "name": "Open parcel near Twin Creeks Rd — Greenwood Township, McHenry County",
+  "state": "IL",
+  "county": "McHenry",
+  "township": "Greenwood",
+  "lat": 42.39536,
+  "lon": -88.40846,
+  "irrigated": true,
+  "crop_use": "dicamba-tolerant soybean",
+  "practices": [
+    "mitigation_tracking",
+    "grassed_waterway"
+  ],
+  "notes": "Item 2 contrast field. Point inside the printed BLT map view for STRYAX 264-1241 (September 2026, DC125), located by matching Twin Creeks Rd / Nippersink Creek road geometry in Google Maps — not asserted as the exact BLT click. Practices are modest (recordkeeping + grassed waterway = 3 pts) so PULA +3 yields a real shortfall vs 6 required; field is irrigated so non_irrigated is not claimed then recommended. Scattered homesteads exist on Twin Creeks Rd; do not describe the area as unpopulated. Illinois label cutoff (no dicamba on soybean after June 20) blocks September application dates before weather/points decide the case.",
+  "source_url": "https://www.epa.gov/endangered-species/bulletins-live-two-view-bulletins"
+}

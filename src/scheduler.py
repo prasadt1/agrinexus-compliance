@@ -107,7 +107,7 @@ def tick_case(case: ComplianceCase, clock: datetime | None = None) -> bool:
 
     # BLOCKED plans should not remind — create() will set BLOCKED later; defensive:
     plan_status = (case.plan or {}).get("status")
-    if plan_status in {"WEATHER_BLOCK", "POINTS_SHORT"}:
+    if plan_status in {"WEATHER_BLOCK", "POINTS_SHORT", "LABEL_DATE_BLOCK"}:
         return False
 
     anchor = compute_anchor(case)

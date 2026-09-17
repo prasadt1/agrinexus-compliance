@@ -4,6 +4,7 @@ const STATUS_LABELS = {
   APPLY_OK: "OK to apply as planned",
   WEATHER_BLOCK: "Do not apply: weather exceeds label limits",
   POINTS_SHORT: "Do not apply: more mitigation is required",
+  LABEL_DATE_BLOCK: "Do not apply: label date cutoff",
   PLANNED: "Planned",
   NUDGED: "Reminded",
   CONFIRMED: "Awaiting verdict",
@@ -225,6 +226,11 @@ function buildPlanSummarySentence(plan, sprayDate) {
     outcome = `your practices earn ${earned} — short by ${pts.shortfall} (do not apply yet)`;
   } else if (plan.status === "WEATHER_BLOCK") {
     outcome = `your practices earn ${earned}, but weather blocks application`;
+  } else if (plan.status === "LABEL_DATE_BLOCK") {
+    const cut = plan.label_date_cutoff || {};
+    outcome =
+      cut.message ||
+      `your practices earn ${earned}, but the label date cutoff blocks application`;
   }
   const windBit = wx.weather_ok
     ? "Wind forecast within limits."

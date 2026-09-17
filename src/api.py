@@ -43,7 +43,7 @@ class PlanRequest(BaseModel):
     applicator_name: Optional[str] = None
     phone: Optional[str] = None
     is_example: bool = False
-    # Fixture pack: boone_liberty (default) or dupage_stryax_pula (Item 2 contrast)
+    # Fixture pack: boone_liberty (default) or mchenry_stryax_pula (Item 2)
     pack: Optional[str] = None
 
 
@@ -97,13 +97,14 @@ def api_plan(body: PlanRequest) -> dict[str, Any]:
     if body.create_case and not (body.applicator_name or "").strip():
         raise HTTPException(status_code=400, detail="applicator_name is required")
     pack = (body.pack or "").strip() or None
-    if pack and pack not in {"boone_liberty", "dupage_stryax_pula"}:
+    if pack and pack not in {"boone_liberty", "mchenry_stryax_pula", "dupage_stryax_pula"}:
         raise HTTPException(status_code=400, detail=f"unknown pack: {pack}")
     try:
         result = plan(
             offline=not body.bedrock,
             windy=body.windy,
             pack=pack,
+            planned_spray_date=body.planned_spray_date,
         )
     except Exception as exc:
         if body.bedrock:

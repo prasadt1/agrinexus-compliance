@@ -135,7 +135,11 @@ class CaseStore:
     ) -> ComplianceCase:
         now = _utc_now()
         plan_status = plan.get("status")
-        blocked = plan_status in {"WEATHER_BLOCK", "POINTS_SHORT"}
+        blocked = plan_status in {
+            "WEATHER_BLOCK",
+            "POINTS_SHORT",
+            "LABEL_DATE_BLOCK",
+        }
         status = "BLOCKED" if blocked else "PLANNED"
         event_type = "blocked" if blocked else "planned"
         anchor_at = _anchor_iso(planned_spray_date, now)
