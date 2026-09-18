@@ -139,6 +139,7 @@ class CaseStore:
             "WEATHER_BLOCK",
             "POINTS_SHORT",
             "LABEL_DATE_BLOCK",
+            "BULLETIN_MONTH_BLOCK",
         }
         status = "BLOCKED" if blocked else "PLANNED"
         event_type = "blocked" if blocked else "planned"

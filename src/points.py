@@ -125,7 +125,10 @@ def recommend_additions(
     candidates = [
         p
         for p in menu["practices"]
-        if p["id"] not in owned and p["id"] != "multi_category_bonus"
+        if p["id"] not in owned
+        and p["id"] != "multi_category_bonus"
+        # Attributes are field facts (e.g. irrigated), not practices to add.
+        and p.get("confirmation") != "attribute"
     ]
     candidates.sort(key=lambda p: (-int(p["points"]), p["id"]))
 

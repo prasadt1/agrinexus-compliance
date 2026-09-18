@@ -37,8 +37,6 @@ PACKS: dict[str, dict[str, Path]] = {
         / "blt-mchenry-il-264-1241-2026-09.json",
     },
 }
-# Alias kept so older demo bookmarks / notes still resolve.
-PACKS["dupage_stryax_pula"] = PACKS["mchenry_stryax_pula"]
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -156,19 +154,84 @@ def evaluate_state_cutoff(
     if (month, day) <= (cut_m, cut_d):
         return None
     quote = ""
+    message = ""
     if isinstance(rule, dict):
         quote = rule.get("source_quote") or ""
+        tmpl = rule.get("message_template") or (
+            "This label does not allow {product_class} on {crop_noun} in "
+            "{state_name} after {cutoff_display}. Do not apply."
+        )
+        message = tmpl.format(
+            product_class=rule.get("product_class") or "this product",
+            crop_noun=rule.get("crop_noun") or crop_key or "this crop",
+            state_name=rule.get("state_name") or state,
+            cutoff_display=rule.get("cutoff_display")
+            or f"{cut_m}/{cut_d}",
+        )
+    else:
+        message = (
+            f"This label does not allow application in {state} after "
+            f"{cut_m}/{cut_d}. Do not apply."
+        )
     return {
         "blocked": True,
         "state": state,
         "crop": crop_key,
         "cutoff_mmdd": str(mmdd),
+        "cutoff_display": (
+            rule.get("cutoff_display") if isinstance(rule, dict) else None
+        )
+        or f"{cut_m}/{cut_d}",
+        "state_name": (
+            rule.get("state_name") if isinstance(rule, dict) else None
+        )
+        or state,
         "application_date": f"{year:04d}-{month:02d}-{day:02d}",
-        "message": (
-            f"This label does not allow dicamba on soybean in {state} after "
-            f"{cut_m}/{cut_d}. Do not apply."
-        ),
+        "message": message,
         "source_quote": quote,
+        "layer": "deterministic",
+    }
+
+
+def _format_bulletin_month(app_month: str) -> str:
+    """Turn YYYY-MM into 'September 2026' when possible."""
+    try:
+        year = int(app_month[0:4])
+        month = int(app_month[5:7])
+        import calendar
+
+        return f"{calendar.month_name[month]} {year}"
+    except (ValueError, IndexError):
+        return app_month
+
+
+def evaluate_bulletin_month(
+    bulletin: dict[str, Any],
+    planned_spray_date: str | None = None,
+) -> dict[str, Any] | None:
+    """
+    Bulletin prints are month-specific. Planning a different month than the
+    on-file bulletin is a block (print the matching month first).
+    """
+    app_month = (bulletin.get("application_month") or "").strip()
+    if len(app_month) < 7 or not planned_spray_date:
+        return None
+    parts = planned_spray_date.strip()[:10].split("-")
+    if len(parts) < 2:
+        return None
+    planned_ym = f"{parts[0]}-{parts[1]}"
+    if planned_ym == app_month[:7]:
+        return None
+    printed = _format_bulletin_month(app_month[:7])
+    needed = _format_bulletin_month(planned_ym)
+    return {
+        "blocked": True,
+        "bulletin_month": app_month[:7],
+        "planned_month": planned_ym,
+        "message": (
+            f"The bulletin on file is for {printed}. Print the bulletin for "
+            f"{needed} before planning this date."
+        ),
         "layer": "deterministic",
     }
 
@@ -218,11 +281,16 @@ def build_deterministic_plan(
     cutoff = evaluate_state_cutoff(
         label, field, bulletin, planned_spray_date=planned_spray_date
     )
+    bulletin_month = evaluate_bulletin_month(
+        bulletin, planned_spray_date=planned_spray_date
+    )
 
-    # Precedence: label date cutoff → weather → points. Points still render
-    # under a cutoff block so the PULA lesson remains visible.
+    # Precedence: label date → bulletin month → weather → points.
+    # Points still render under date/month blocks so the PULA lesson remains.
     if cutoff:
         status = "LABEL_DATE_BLOCK"
+    elif bulletin_month:
+        status = "BULLETIN_MONTH_BLOCK"
     elif not gate.ok:
         status = "WEATHER_BLOCK"
     elif scored.shortfall == 0:
@@ -281,6 +349,7 @@ def build_deterministic_plan(
         if bulletin.get("pula_active")
         else 0,
         "label_date_cutoff": cutoff,
+        "bulletin_month_gate": bulletin_month,
         "points": scored.as_dict(),
         "recommended_additions": additions,
         "weather": {
@@ -291,7 +360,13 @@ def build_deterministic_plan(
         },
         "citations": citations,
         "layers": {
-            "deterministic": ["label_date_cutoff", "points", "weather", "status"],
+            "deterministic": [
+                "label_date_cutoff",
+                "bulletin_month_gate",
+                "points",
+                "weather",
+                "status",
+            ],
             "model": [],
         },
     }

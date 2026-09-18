@@ -97,7 +97,7 @@ def api_plan(body: PlanRequest) -> dict[str, Any]:
     if body.create_case and not (body.applicator_name or "").strip():
         raise HTTPException(status_code=400, detail="applicator_name is required")
     pack = (body.pack or "").strip() or None
-    if pack and pack not in {"boone_liberty", "mchenry_stryax_pula", "dupage_stryax_pula"}:
+    if pack and pack not in {"boone_liberty", "mchenry_stryax_pula"}:
         raise HTTPException(status_code=400, detail=f"unknown pack: {pack}")
     try:
         result = plan(
@@ -371,6 +371,13 @@ def api_demo_reset() -> dict[str, Any]:
     result["clock"] = clock_status()
     return result
 
+
+if (ROOT / "fixtures").exists():
+    app.mount(
+        "/fixtures",
+        StaticFiles(directory=str(ROOT / "fixtures")),
+        name="fixtures",
+    )
 
 if WEB.exists():
     app.mount("/", StaticFiles(directory=str(WEB), html=True), name="web")
