@@ -5,20 +5,37 @@
   "alternate_names": ["KHNP0090 Herbicide"],
   "required_runoff_points": 3,
   "pula_extra_points": 3,
+  "pula_total_points_inside_pula": 6,
   "requires_bulletins_live_two": true,
+  "bulletin_lookup_window_months": 6,
   "min_wind_mph": 3,
   "max_wind_mph": 10,
   "no_rain_hours_before": null,
+  "ambiguous_fields": {
+    "no_rain_hours_before": true
+  },
   "source_quotes": {
+    "required_runoff_points": "You must achieve a minimum of THREE runoff/erosion mitigation points for the crop uses listed",
+    "pula_total_points_inside_pula": "SIX runoff/erosion mitigation points are required inside specific PULAs for all crop uses.",
+    "pula_extra_points": "This crop use is located within a PULA. Therefore, 3 ADDITIONAL points (for a total of 6 points) of runoff/erosion mitigations must be achieved for this crop use using the Mitigation Menu (https://www.epa.gov/pesticides/mitigation-menu).",
+    "pula_extra_points_note": "Label-only extraction: pula_extra_points is null (label states SIX inside PULAs, not 'three additional'). Value 3 is from Printed Bulletin DC125 text, scored only when bulletin text is supplied.",
+    "requires_bulletins_live_two": "Certified applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application",
+    "bulletin_lookup_window_months": "Certified applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application",
     "min_wind_mph": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
     "max_wind_mph": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
-    "no_rain_hours_before": "DO NOT apply during rain.",
+    "no_rain_hours_before_binding": "DO NOT apply during rain.",
+    "no_rain_hours_before_advisory": "Avoid making applications when rainfall is expected before the product has sufficient time to dry (minimum 4 hours).",
     "state_cutoffs.IL.soybean": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year."
   },
   "state_cutoffs": {
     "IL": {
       "soybean": {
         "cutoff_mmdd": "06-20",
+        "product_class": "dicamba",
+        "crop_noun": "soybean",
+        "state_name": "Illinois",
+        "cutoff_display": "June 20",
+        "message_template": "This label does not allow {product_class} on {crop_noun} in {state_name} after {cutoff_display}. Do not apply.",
         "source_quote": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year.",
         "label_section": "ILLINOIS SPECIFIC RESTRICTIONS",
         "label_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
@@ -30,6 +47,6 @@
   "source_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
   "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf",
   "retrieved": "2026-08-23",
-  "fixture_corrected": "2026-09-17",
-  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Wind 3–10 mph and Illinois June 20 soybean cutoff are transcribed from the EPA label PDF. PULA extra points come from the Printed Bulletin (DC125), not from this label JSON alone. no_rain_hours_before is null because the label states DO NOT apply during rain without a numeric dry-window hours figure."
+  "fixture_corrected": "2026-09-18",
+  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Wind 3–10 mph and Illinois June 20 soybean cutoff are transcribed from the EPA label PDF. Planner pula_extra_points (3) comes from Printed Bulletin DC125; the label itself states SIX points inside PULAs (pula_total_points_inside_pula). no_rain_hours_before is null (ambiguous): binding text is DO NOT apply during rain; advisory text mentions minimum 4 hours to dry — not treated as a numeric planner gate."
 }
