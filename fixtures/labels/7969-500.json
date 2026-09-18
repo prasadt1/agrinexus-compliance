@@ -4,13 +4,33 @@
   "registrant_product_name": "BASF L-Glufosinate-Ammonium 211 Herbicide",
   "required_runoff_points": 3,
   "pula_extra_points": 0,
+  "pula_total_points_inside_pula": null,
   "requires_bulletins_live_two": true,
+  "bulletin_lookup_window_months": 6,
+  "min_wind_mph": null,
   "max_wind_mph": 15,
-  "no_rain_hours_before": 1,
+  "no_rain_hours_before": null,
+  "ambiguous_fields": {
+    "no_rain_hours_before": true,
+    "downwind_buffer_ft": true
+  },
+  "source_quotes": {
+    "required_runoff_points": "You must achieve a minimum of three points for the crop uses listed on this label unless otherwise stipulated below.",
+    "requires_bulletins_live_two": "Applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application.",
+    "bulletin_lookup_window_months": "Applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application.",
+    "max_wind_mph": "DO NOT apply when wind speeds exceed 15 miles per hour at the application site.",
+    "min_wind_mph": null,
+    "min_wind_mph_note": "This label states no minimum boom-height wind speed for ground application in the ESA drift section used here; leave null.",
+    "no_rain_hours_before_binding": "DO NOT apply during rain.",
+    "no_rain_hours_before_advisory": "BASF L-Glufosinate-Ammonium 211 is rainfast four (4) hours after application to most weed species",
+    "pula_total_points_inside_pula": null,
+    "pula_total_points_inside_pula_note": "Label defers PULA totals to Bulletins Live! Two rather than stating a fixed SIX; expected null for label-only extraction."
+  },
   "excerpt_markdown_path": "fixtures/labels/7969-500.md",
   "source_pdf": "fixtures/labels/sources/7969-500-epa-label-20241206.pdf",
   "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/007969-00500-20241206.pdf",
   "retrieved": "2026-08-23",
+  "fixture_corrected": "2026-09-18",
   "extension_citation": "https://crops.extension.iastate.edu/post/prepare-now-2026-epa-endangered-species-requirements",
-  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Excerpted from the EPA-stamped label PDF; always verify against the current container label."
+  "disclaimer": "Decision-support / education demo. Not legal advice. The product label controls. Excerpted from the EPA-stamped label PDF (20241206). no_rain_hours_before is null (ambiguous): binding DO NOT apply during rain; rainfast four hours is efficacy language, not a numeric spray gate. min_wind_mph is null (not stated). Always verify against the current container label."
 }
