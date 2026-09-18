@@ -19,7 +19,7 @@
 - Product: **264-1241** (STRYAX HERBICIDE)
 - Result: **PULA active** — code **DC125**: 3 ADDITIONAL runoff/erosion points (total 6); planner also applies Illinois label cutoff (no dicamba on soybean after June 20) so September returns `LABEL_DATE_BLOCK` while still showing the points card
 - MD5: `dbdc9ae47595600465ba28b1a5d8ab7e` · PDF creation `D:20260918001044+02'00'` · Date Printed `2026-09-17T23:49:26`
-- Planner pack id: `mchenry_stryax_pula` (alias `dupage_stryax_pula` still resolves here)
+- Planner pack id: `mchenry_stryax_pula`
 
 ## Superseded prints (kept for provenance)
 - `blt-boone-ia-7969-500-2026-08.pdf` + `.json` — August 2026 print at Boone **town center**. Superseded for farmland map view.

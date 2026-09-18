@@ -138,8 +138,8 @@
       </details>
     </div>
 
-    <footer class="page-footer muted">
-      Sample educational data · Boone / Liberty ULTRA
+    <footer class="page-footer muted" id="pack-footer">
+      Sample educational data
     </footer>
   </main>
 
@@ -198,9 +198,23 @@
             : "None yet — use Confirm Demo controls to advance the clock and send reminders";
 
           document.getElementById("sum-field").textContent =
-            `${field.county || ""}, ${field.state || ""}`.replace(/^, |, $/g, "") || field.field_id || "—";
+            [
+              field.name,
+              field.crop_use ? "Crop: " + field.crop_use : "",
+              field.use_frame ? "Use: " + field.use_frame : "",
+              [field.county, field.state].filter(Boolean).join(", "),
+            ]
+              .filter(Boolean)
+              .join(" · ") || field.field_id || "—";
           document.getElementById("sum-product").textContent =
             `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
+          try {
+            const foot = document.getElementById("pack-footer");
+            const planish = { field, product };
+            if (foot && typeof packFooterText === "function") {
+              foot.textContent = packFooterText(planish);
+            }
+          } catch (_) {}
           document.getElementById("sum-date").textContent =
             data.planned_spray_date ? formatSprayDate(data.planned_spray_date) : "Not set";
           document.getElementById("sum-gen").textContent = formatWhen(data.receipt_generated_at);

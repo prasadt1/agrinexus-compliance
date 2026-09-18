@@ -168,8 +168,8 @@
       </details>
     </div>
 
-    <footer class="page-footer muted">
-      Sample educational data · Boone / Liberty ULTRA
+    <footer class="page-footer muted" id="pack-footer">
+      Sample educational data
     </footer>
   </main>
 
@@ -177,6 +177,14 @@
   <script src="/app.js"></script>
   <script src="/tour.js"></script>
   <script>
+    (function syncFooter() {
+      const el = document.getElementById("pack-footer");
+      if (!el) return;
+      try {
+        const t = sessionStorage.getItem("agrinexus_pack_footer");
+        if (t) el.textContent = t;
+      } catch (_) {}
+    })();
     const caseId = resolveCaseId();
     wireApplicatorStepper("confirm");
     const gate = document.getElementById("gate");
@@ -212,9 +220,23 @@
       document.getElementById("sum-name").textContent = data.applicator_name || "Pilot applicator";
       document.getElementById("sum-phone").textContent = data.phone || "—";
       document.getElementById("sum-field").textContent =
-        `${field.county || ""}, ${field.state || ""}`.replace(/^, |, $/g, "") || field.field_id || "—";
+        [
+          field.name,
+          field.crop_use ? "Crop: " + field.crop_use : "",
+          field.use_frame ? "Use: " + field.use_frame : "",
+          [field.county, field.state].filter(Boolean).join(", "),
+        ]
+          .filter(Boolean)
+          .join(" · ") || field.field_id || "—";
       document.getElementById("sum-product").textContent =
         `${product.product_name || "—"} (${product.epa_reg_no || ""})`;
+      try {
+        const foot = document.getElementById("pack-footer");
+        if (foot && typeof packFooterText === "function") {
+          foot.textContent = packFooterText(plan);
+          sessionStorage.setItem("agrinexus_pack_footer", foot.textContent);
+        }
+      } catch (_) {}
 
       const pill = document.getElementById("status-pill");
       pill.textContent = statusLabel(data.status);
