@@ -5,6 +5,7 @@ const STATUS_LABELS = {
   WEATHER_BLOCK: "Do not apply: weather exceeds label limits",
   POINTS_SHORT: "Do not apply: more mitigation is required",
   LABEL_DATE_BLOCK: "Do not apply: label date cutoff",
+  BULLETIN_MONTH_BLOCK: "Do not apply: bulletin month does not match",
   PLANNED: "Planned",
   NUDGED: "Reminded",
   CONFIRMED: "Awaiting verdict",
@@ -213,34 +214,77 @@ function buildPlanSummarySentence(plan, sprayDate) {
   const product = plan.product || {};
   const pts = plan.points || {};
   const wx = plan.weather || {};
-  const actions = plan.bulletin_actions || [];
   const place = [field.county, field.state].filter(Boolean).join(", ") || "Field";
   const productName = product.product_name || product.epa_reg_no || "product";
   const dateBit = formatSprayDate(sprayDate);
   const req = pts.required_points ?? "—";
   const earned = pts.earned_points ?? "—";
-  let outcome = statusLabel(plan.status);
+  const shortfall = pts.shortfall;
+  const lead = `${place} · ${productName} · planned spray ${dateBit}.`;
+
   if (plan.status === "APPLY_OK") {
-    outcome = `your practices earn ${earned} — OK to apply`;
-  } else if (plan.status === "POINTS_SHORT") {
-    outcome = `your practices earn ${earned} — short by ${pts.shortfall} (do not apply yet)`;
-  } else if (plan.status === "WEATHER_BLOCK") {
-    outcome = `your practices earn ${earned}, but weather blocks application`;
-  } else if (plan.status === "LABEL_DATE_BLOCK") {
-    const cut = plan.label_date_cutoff || {};
-    outcome =
-      cut.message ||
-      `your practices earn ${earned}, but the label date cutoff blocks application`;
+    return (
+      `${lead} ${req} mitigation points required; your practices earn ${earned} — OK to apply. ` +
+      `Wind forecast within limits.`
+    );
   }
-  const windBit = wx.weather_ok
-    ? "Wind forecast within limits."
-    : `Wind ${wx.wind_mph ?? "—"} mph exceeds label limits.`;
-  const n = actions.length;
-  const bulletinBit =
-    n === 0
-      ? "No extra bulletin actions listed."
-      : `${n} bulletin action${n === 1 ? "" : "s"} required before application.`;
-  return `${place} · ${productName} · planned spray ${dateBit}. ${req} mitigation points required, ${outcome}. ${windBit} ${bulletinBit}`;
+  if (plan.status === "LABEL_DATE_BLOCK") {
+    const cut = plan.label_date_cutoff || {};
+    const msg =
+      cut.message ||
+      "The label date cutoff blocks application.";
+    return (
+      `${lead} ${msg} Separately, ${req} mitigation points are required and your practices earn ${earned}` +
+      (shortfall != null ? ` (short by ${shortfall})` : "") +
+      `. Wind forecast ${wx.weather_ok ? "within limits" : "also exceeds limits"}.`
+    );
+  }
+  if (plan.status === "BULLETIN_MONTH_BLOCK") {
+    const gate = plan.bulletin_month_gate || {};
+    return (
+      `${lead} ${gate.message || "The bulletin month does not match the planned date."} ` +
+      `${req} mitigation points would be required; your practices earn ${earned}.`
+    );
+  }
+  if (plan.status === "POINTS_SHORT") {
+    return (
+      `${lead} ${req} mitigation points required; your practices earn ${earned} — short by ${shortfall} (do not apply yet). ` +
+      `Wind forecast within limits.`
+    );
+  }
+  if (plan.status === "WEATHER_BLOCK") {
+    return (
+      `${lead} ${req} mitigation points required; your practices earn ${earned}, but weather blocks application. ` +
+      `Wind ${wx.wind_mph ?? "—"} mph exceeds label limits.`
+    );
+  }
+  return `${lead} ${statusLabel(plan.status)}.`;
+}
+
+function formatBulletinPrinted(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso.includes("T") ? iso : iso + "T12:00:00");
+    return new Intl.DateTimeFormat(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }).format(d);
+  } catch {
+    return iso;
+  }
+}
+
+function packFooterText(plan) {
+  const field = (plan && plan.field) || {};
+  const product = (plan && plan.product) || {};
+  const place = [field.county, field.state].filter(Boolean).join(", ");
+  const pname = product.product_name || "sample pack";
+  const reg = product.epa_reg_no || "";
+  return (
+    `Sample educational data · ${place || "Field"} · ${pname}` +
+    (reg ? ` (${reg})` : "")
+  );
 }
 
 /** Full-page screenshot mode: sticky header renders once (no stitch artifact). */

@@ -115,8 +115,9 @@
         </article>
 
         <article class="human-card" id="bulletin-card">
-          <h3>Bulletin actions</h3>
+          <h3 id="bulletin-heading">Bulletin actions</h3>
           <ul class="checklist" id="bulletin-list"></ul>
+          <p class="muted" id="field-desc" hidden></p>
         </article>
       </div>
 
@@ -131,8 +132,11 @@
         </article>
       </div>
 
-      <div class="actions">
+      <div class="actions" id="plan-actions">
         <a id="to-confirm" class="button" href="/confirm.html">Continue to Confirm →</a>
+        <button type="button" id="replan-hint" class="button ghost" hidden>
+          Replan for a date on or before June 20
+        </button>
       </div>
 
       <details class="panel">
@@ -216,6 +220,7 @@
           buildPlanSummarySentence(plan, sprayDate);
 
         const cutoff = plan.label_date_cutoff;
+        const monthGate = plan.bulletin_month_gate;
         const cutoffCard = document.getElementById("cutoff-card");
         const cutoffHuman = document.getElementById("cutoff-human");
         const cutoffQuote = document.getElementById("cutoff-quote");
@@ -229,6 +234,11 @@
             cutoffQuote.hidden = true;
             cutoffQuote.textContent = "";
           }
+        } else if (monthGate && monthGate.blocked) {
+          cutoffCard.hidden = false;
+          cutoffHuman.textContent = monthGate.message || "Bulletin month does not match.";
+          cutoffQuote.hidden = true;
+          cutoffQuote.textContent = "";
         } else {
           cutoffCard.hidden = true;
           cutoffHuman.textContent = "";
@@ -276,20 +286,53 @@
           ? `Wind ${wx.wind_mph ?? "—"} mph — within the label limit (${windRange}). Forecast scenario: ${windy ? "Windy" : "Calm"}.`
           : `Do not apply: wind ${wx.wind_mph ?? "—"} mph is outside the label limit (${windRange}). ${(wx.weather_block_reasons || []).join(" ")}`;
 
+        const blockedPlan =
+          plan.status === "LABEL_DATE_BLOCK" ||
+          plan.status === "BULLETIN_MONTH_BLOCK" ||
+          plan.status === "WEATHER_BLOCK" ||
+          plan.status === "POINTS_SHORT";
+        document.getElementById("bulletin-heading").textContent = blockedPlan
+          ? "What the bulletin says for this field"
+          : "Bulletin actions";
+
         const bl = document.getElementById("bulletin-list");
         bl.innerHTML = "";
         const field = plan.field || {};
         const meta = plan.bulletin_meta || {};
-        if (field.name || (field.lat != null && field.lon != null)) {
-          const li = document.createElement("li");
-          const bits = [];
-          if (field.name) bits.push(field.name);
-          if (field.lat != null && field.lon != null) {
-            bits.push(`${field.lat}, ${field.lon}`);
+        const fieldDesc = document.getElementById("field-desc");
+        const descBits = [];
+        if (field.name) descBits.push(field.name);
+        if (field.crop_use) descBits.push("Crop: " + field.crop_use);
+        if (field.use_frame) descBits.push("Use: " + field.use_frame);
+        if (field.lat != null && field.lon != null) {
+          descBits.push(field.lat + ", " + field.lon);
+        }
+        if (meta.date_printed) {
+          descBits.push("Bulletin printed " + formatBulletinPrinted(meta.date_printed));
+        }
+        if (descBits.length) {
+          fieldDesc.hidden = false;
+          let html = descBits.join(" · ");
+          if (meta.bulletin_pdf) {
+            html +=
+              ' · <a href="/' +
+              meta.bulletin_pdf.replace(/^fixtures\//, "fixtures/") +
+              '" target="_blank" rel="noopener">Open printed bulletin (PDF)</a>';
+            // Static files are under fixtures/ served? Check - API may not serve fixtures.
+            // Use path relative to repo via a known static mount or cite only.
           }
-          if (meta.date_printed) bits.push("Bulletin printed " + meta.date_printed);
-          li.innerHTML = "<strong>Field / print:</strong> " + bits.join(" · ");
-          bl.appendChild(li);
+          // Prefer citing path; FastAPI may serve from web/ only. Link via raw path note.
+            fieldDesc.innerHTML =
+            "<strong>Field / print:</strong> " +
+            descBits.join(" · ") +
+            (meta.bulletin_pdf
+              ? ' · <a href="/' +
+                meta.bulletin_pdf +
+                '" target="_blank" rel="noopener">Open printed bulletin (PDF)</a>'
+              : "");
+        } else {
+          fieldDesc.hidden = true;
+          fieldDesc.textContent = "";
         }
         if (plan.pula_active) {
           const li = document.createElement("li");
@@ -307,13 +350,19 @@
           bl.appendChild(li);
         });
 
-        const cutoffBit = cutoff && cutoff.blocked
-          ? ` Label date cutoff blocks application (${cutoff.cutoff_mmdd || "cutoff"}).`
-          : "";
+        let gateBit = "";
+        if (cutoff && cutoff.blocked) {
+          gateBit =
+            " Label date cutoff blocks application (" +
+            (cutoff.cutoff_display || cutoff.cutoff_mmdd || "cutoff") +
+            ").";
+        } else if (monthGate && monthGate.blocked) {
+          gateBit = " Bulletin month does not match the planned spray date.";
+        }
         document.getElementById("calc-copy").textContent =
           `Credited practices: ${(practiceNames(pts.credited) || []).join(", ") || "none"}. ` +
           `Weather gate is rule-based (${wx.weather_ok ? "pass" : "fail"}).` +
-          cutoffBit;
+          gateBit;
 
         const model = plan.model;
         document.getElementById("ai-copy").textContent = model
@@ -324,6 +373,7 @@
           {
             status: plan.status,
             label_date_cutoff: cutoff || null,
+            bulletin_month_gate: monthGate || null,
             points: pts,
             weather: wx,
             recommended_additions: adds,
@@ -337,17 +387,38 @@
         );
 
         const footer = document.getElementById("pack-footer");
-        if (footer) {
-          const reg = product.epa_reg_no || "";
-          const pname = product.product_name || "sample pack";
-          const place = [field.county, field.state].filter(Boolean).join(", ");
-          footer.textContent =
-            `Sample educational data · ${place || "Field"} · ${pname}` +
-            (reg ? ` (${reg})` : "");
-        }
+        if (footer) footer.textContent = packFooterText(plan);
+        try {
+          sessionStorage.setItem("agrinexus_pack_footer", packFooterText(plan));
+        } catch (_) {}
 
-        document.getElementById("to-confirm").href =
-          "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);
+        const toConfirm = document.getElementById("to-confirm");
+        const replan = document.getElementById("replan-hint");
+        if (plan.status === "APPLY_OK") {
+          toConfirm.hidden = false;
+          toConfirm.href =
+            "/confirm.html?case_id=" + encodeURIComponent(caseObj.case_id);
+          replan.hidden = true;
+        } else {
+          toConfirm.hidden = true;
+          replan.hidden = false;
+          if (plan.status === "LABEL_DATE_BLOCK") {
+            const display = (cutoff && cutoff.cutoff_display) || "June 20";
+            replan.textContent = "Replan for a date on or before " + display;
+          } else if (plan.status === "BULLETIN_MONTH_BLOCK") {
+            replan.textContent = "Print a matching bulletin month, then replan";
+          } else if (plan.status === "POINTS_SHORT") {
+            replan.textContent = "Add practices or change the plan";
+          } else {
+            replan.textContent = "Change the forecast or date, then check again";
+          }
+          replan.onclick = () => {
+            document.getElementById("plan-form").scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          };
+        }
 
         live.textContent = statusLabel(plan.status);
         document.getElementById("result").scrollIntoView({ behavior: "smooth", block: "start" });
