@@ -23,6 +23,8 @@
 
 ## Superseded prints (kept for provenance)
 - `blt-boone-ia-7969-500-2026-08.pdf` + `.json` — August 2026 print at Boone **town center**. Superseded for farmland map view.
-- `blt-dupage-il-264-1241-2026-09.pdf` + `.json` — early Item 2 print at West Chicago Prairie vicinity. Superseded: label-illicit story for the click point / preserve adjacency; replaced by McHenry cropland print (`bulletin-10`).
+
+## Removed (not kept)
+- Early Item 2 DuPage / West Chicago Prairie print (`blt-dupage-il-264-1241-2026-09.*` + `field_dupage_west_chicago.json`) deleted **2026-09-19** after replacement by the McHenry cropland print (`bulletin-10`).
 
 Transcribe bulletin JSON from Printed Bulletin PDFs only. Do not invent PULA language. Record MD5 and PDF creation timestamp alongside Date Printed (Date Printed text alone does not uniquely identify a print).
