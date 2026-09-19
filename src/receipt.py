@@ -370,14 +370,22 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
     for a in payload.get("bulletin_actions") or []:
         story.append(Paragraph(f"• {_esc(a)}", small))
 
-    story.append(
-        Paragraph(
-            "Field-level documentation earns one mitigation point under EPA's "
-            "runoff and erosion mitigation menu "
-            "(EPA Herbicide Strategy / Insecticide Strategy mitigation measures).",
-            small,
+    doc_pt = (payload.get("product") or {}).get("documentation_mitigation_point")
+    if isinstance(doc_pt, dict) and doc_pt.get("value") is not None and doc_pt.get("source_quote"):
+        story.append(
+            Paragraph(
+                f"Documentation mitigation point: {_esc(doc_pt.get('value'))} — "
+                f"“{_esc(doc_pt.get('source_quote'))}” "
+                f"({_esc(doc_pt.get('authority') or 'product label')}"
+                + (
+                    f", label p. {_esc(doc_pt.get('label_page'))}"
+                    if doc_pt.get("label_page")
+                    else ""
+                )
+                + ").",
+                small,
+            )
         )
-    )
 
     story.append(Paragraph("Confirmation as received", h2))
     conf = payload.get("confirmation")
@@ -422,12 +430,33 @@ def write_receipt_pdf(case: ComplianceCase, out_dir: Path | None = None) -> Path
     )
 
     story.append(Paragraph("Record integrity", h2))
+    retention = (payload.get("product") or {}).get("record_retention") or {}
+    years = (payload.get("product") or {}).get("record_retention_years")
+    if years is not None and retention.get("authority") == "demonstration retention policy":
+        retention_bit = (
+            f" · This demonstration keeps the case record for {_esc(years)} years "
+            f"(demo retention policy)"
+        )
+    elif years is not None and retention.get("authority"):
+        retention_bit = (
+            f" · Kept for {_esc(years)} years — {_esc(retention.get('authority'))}"
+        )
+    else:
+        retention_bit = ""
     story.append(
         Paragraph(
-            f"SHA-256: <font face='Courier'>{_esc(sha)}</font> · Kept for two years.",
+            f"SHA-256: <font face='Courier'>{_esc(sha)}</font>{retention_bit}.",
             small,
         )
     )
+    label_ctx = retention.get("label_context_quote")
+    if label_ctx:
+        story.append(
+            Paragraph(
+                f"Label recordkeeping (context): “{_esc(label_ctx)}”",
+                small,
+            )
+        )
     story.append(Spacer(1, 8))
     story.append(Paragraph(DISCLAIMER, small))
 

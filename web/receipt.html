@@ -114,11 +114,8 @@
 
       <div class="record-block">
         <h2>Record integrity</h2>
-        <p id="integrity-doc" class="muted">
-          Field-level documentation earns one mitigation point under EPA's runoff and erosion
-          mitigation menu (EPA Herbicide Strategy / Insecticide Strategy mitigation measures).
-        </p>
-        <p id="integrity-hash" class="muted">SHA-256 · Kept for two years.</p>
+        <p id="integrity-doc" class="muted" hidden></p>
+        <p id="integrity-hash" class="muted">SHA-256</p>
       </div>
 
       <div class="split-explain">
@@ -237,10 +234,47 @@
           document.getElementById("ai-copy").textContent =
             "Model layer is not enabled in this demonstration.";
           const hashEl = document.getElementById("integrity-hash");
+          const docEl = document.getElementById("integrity-doc");
+          const productMeta = product || {};
+          const docPt = productMeta.documentation_mitigation_point;
+          if (docEl) {
+            if (docPt && docPt.value != null && docPt.source_quote) {
+              docEl.hidden = false;
+              const pageBit = docPt.label_page ? ", label p. " + docPt.label_page : "";
+              docEl.textContent =
+                "Documentation mitigation point: " +
+                docPt.value +
+                " — “" +
+                docPt.source_quote +
+                "” (" +
+                (docPt.authority || "product label") +
+                pageBit +
+                ").";
+            } else {
+              docEl.hidden = true;
+              docEl.textContent = "";
+            }
+          }
           if (hashEl) {
-            hashEl.textContent = data.receipt_sha256
-              ? "SHA-256: " + data.receipt_sha256 + " · Kept for two years."
-              : "SHA-256 available after the case is closed · Kept for two years.";
+            const ret = productMeta.record_retention || {};
+            const years = productMeta.record_retention_years;
+            let retentionBit = "";
+            if (years != null && ret.authority === "demonstration retention policy") {
+              retentionBit =
+                " · This demonstration keeps the case record for " +
+                years +
+                " years (demo retention policy)";
+            } else if (years != null && ret.authority) {
+              retentionBit = " · Kept for " + years + " years — " + ret.authority;
+            }
+            let hashText = data.receipt_sha256
+              ? "SHA-256: " + data.receipt_sha256 + retentionBit
+              : "SHA-256 available after the case is closed" + retentionBit;
+            if (ret.label_context_quote) {
+              hashText +=
+                " Label recordkeeping (context): “" + ret.label_context_quote + "”";
+            }
+            hashEl.textContent = hashText;
           }
           document.getElementById("tech-out").textContent = JSON.stringify(data, null, 2);
           live.textContent = "Record loaded: " + statusLabel(data.status);

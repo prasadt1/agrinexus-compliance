@@ -314,6 +314,10 @@ def build_deterministic_plan(
         "requires_bulletins_live_two": label.get("requires_bulletins_live_two"),
         "max_wind_mph": label.get("max_wind_mph"),
         "min_wind_mph": label.get("min_wind_mph"),
+        "restricted_use_pesticide": label.get("restricted_use_pesticide"),
+        "documentation_mitigation_point": label.get("documentation_mitigation_point"),
+        "record_retention_years": label.get("record_retention_years"),
+        "record_retention": label.get("record_retention"),
     }
 
     return {

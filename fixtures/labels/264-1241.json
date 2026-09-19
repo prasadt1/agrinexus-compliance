@@ -8,9 +8,25 @@
   "pula_total_points_inside_pula": 6,
   "requires_bulletins_live_two": true,
   "bulletin_lookup_window_months": 6,
+  "restricted_use_pesticide": true,
   "min_wind_mph": 3,
   "max_wind_mph": 10,
   "no_rain_hours_before": null,
+  "documentation_mitigation_point": {
+    "value": 1,
+    "source_quote": "The creation and keeping of these records count as ONE point toward the total points required for use of this product",
+    "label_page": 10,
+    "authority": "product label"
+  },
+  "record_retention_years": 2,
+  "record_retention": {
+    "years": 2,
+    "authority": "demonstration retention policy",
+    "authority_quote": null,
+    "label_context_quote": "Records must be created, maintained, and made available to federal and state officials in accordance with any applicable federal and state record keeping requirements.",
+    "label_context_page": 9,
+    "note": "Two years is this demonstration's retention policy for the case receipt — not a claim that every applicator is federally required to keep records for two years. 7 CFR Part 110 (private-applicator RUP recordkeeping) was rescinded effective 11 July 2025 (Federal Register 2025-08220). Legal retention still varies by applicator type and state; the label defers to those applicable requirements."
+  },
   "ambiguous_fields": {
     "no_rain_hours_before": true
   },
@@ -25,7 +41,10 @@
     "max_wind_mph": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
     "no_rain_hours_before_binding": "DO NOT apply during rain.",
     "no_rain_hours_before_advisory": "Avoid making applications when rainfall is expected before the product has sufficient time to dry (minimum 4 hours).",
-    "state_cutoffs.IL.soybean": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year."
+    "state_cutoffs.IL.soybean": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year.",
+    "restricted_use_pesticide": "Restricted Use Pesticide: Yes",
+    "documentation_mitigation_point": "The creation and keeping of these records count as ONE point toward the total points required for use of this product",
+    "record_keeping_deferral": "Records must be created, maintained, and made available to federal and state officials in accordance with any applicable federal and state record keeping requirements."
   },
   "state_cutoffs": {
     "IL": {

@@ -7,9 +7,19 @@
   "pula_total_points_inside_pula": null,
   "requires_bulletins_live_two": true,
   "bulletin_lookup_window_months": 6,
+  "restricted_use_pesticide": false,
   "min_wind_mph": null,
   "max_wind_mph": 15,
   "no_rain_hours_before": null,
+  "documentation_mitigation_point": null,
+  "record_retention_years": 2,
+  "record_retention": {
+    "years": 2,
+    "authority": "demonstration retention policy",
+    "authority_quote": null,
+    "label_context_quote": null,
+    "note": "Two years is this demonstration's retention policy for the case receipt. This Liberty fixture does not cite a product-specific legal retention period (no RUP legend; no label retention sentence in the excerpt used here)."
+  },
   "ambiguous_fields": {
     "no_rain_hours_before": true,
     "downwind_buffer_ft": true
@@ -24,7 +34,9 @@
     "no_rain_hours_before_binding": "DO NOT apply during rain.",
     "no_rain_hours_before_advisory": "BASF L-Glufosinate-Ammonium 211 is rainfast four (4) hours after application to most weed species",
     "pula_total_points_inside_pula": null,
-    "pula_total_points_inside_pula_note": "Label defers PULA totals to Bulletins Live! Two rather than stating a fixed SIX; expected null for label-only extraction."
+    "pula_total_points_inside_pula_note": "Label defers PULA totals to Bulletins Live! Two rather than stating a fixed SIX; expected null for label-only extraction.",
+    "restricted_use_pesticide_note": "No Restricted Use Pesticide legend found on the stamped Liberty ULTRA / 7969-500 PDF used for this fixture.",
+    "documentation_mitigation_point_note": "This label does not state that creating/keeping records counts as ONE mitigation point. Omit the documentation-point receipt line for this product (menu practice mitigation_tracking remains separate planner arithmetic)."
   },
   "excerpt_markdown_path": "fixtures/labels/7969-500.md",
   "source_pdf": "fixtures/labels/sources/7969-500-epa-label-20241206.pdf",
