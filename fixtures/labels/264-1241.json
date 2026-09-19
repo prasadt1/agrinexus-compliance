@@ -43,7 +43,7 @@
       }
     }
   },
-  "excerpt_markdown_path": null,
+  "excerpt_markdown_path": "fixtures/labels/264-1241.md",
   "source_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
   "source_url": "https://www3.epa.gov/pesticides/chem_search/ppls/000264-01241-20260206.pdf",
   "retrieved": "2026-08-23",

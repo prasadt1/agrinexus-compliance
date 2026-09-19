@@ -1,0 +1,134 @@
+{
+  "_meta": {
+    "label_id": "264-1241",
+    "label_pdf": "fixtures/labels/sources/264-1241-stryax-epa-label-20260206.pdf",
+    "label_stamp": "2026/02/06",
+    "excerpt_file": "fixtures/labels/264-1241.md",
+    "bulletin_pdf": "fixtures/bulletins/blt-mchenry-il-264-1241-2026-09.pdf",
+    "bulletin_md5": "dbdc9ae47595600465ba28b1a5d8ab7e",
+    "drafted": "2026-09-19",
+    "status": "DRAFT — Prasad must verify each source_quote against the PDF page before treating this as the hand-built eval key",
+    "notes": [
+      "Label-only: pula_extra_points is null (model must not subtract 6−3). Score pula_total_points_inside_pula=6 from the label.",
+      "With bulletin text supplied: pula_extra_points=3 from DC125 verbatim.",
+      "no_rain_hours_before is null and ambiguous (binding DO NOT apply during rain + advisory minimum 4 hours).",
+      "Word numbers THREE/SIX map to integers 3/6 without counting as computing."
+    ]
+  },
+  "epa_reg_no": "264-1241",
+  "requires_bulletins_live_two": {
+    "value": true,
+    "source_quote": "Certified applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application",
+    "label_page": 20
+  },
+  "bulletin_lookup_window_months": {
+    "value": 6,
+    "source_quote": "Certified applicators must access and search Bulletins Live! Two (BLT) at https://www.epa.gov/pesticides/bulletins within six months prior to or on the day of the application",
+    "label_page": 20
+  },
+  "required_runoff_points": {
+    "value": 3,
+    "source_quote": "You must achieve a minimum of THREE runoff/erosion mitigation points for the crop uses listed",
+    "label_page": 11
+  },
+  "pula_total_points_inside_pula": {
+    "value": 6,
+    "source_quote": "SIX runoff/erosion mitigation points are required inside specific PULAs for all crop uses.",
+    "label_page": 20
+  },
+  "pula_extra_points_label_only": {
+    "value": null,
+    "source_quote": null,
+    "note": "Label never says 'three additional'; do not score a non-null extraction without bulletin text."
+  },
+  "pula_extra_points_with_bulletin": {
+    "value": 3,
+    "source_quote": "This crop use is located within a PULA. Therefore, 3 ADDITIONAL points (for a total of 6 points) of runoff/erosion mitigations must be achieved for this crop use using the Mitigation Menu (https://www.epa.gov/pesticides/mitigation-menu).",
+    "source": "fixtures/bulletins/blt-mchenry-il-264-1241-2026-09.json actions[0] / Printed Bulletin DC125",
+    "bulletin_code": "DC125",
+    "bulletin_page": 2,
+    "note": "Not present in the label excerpt; score only when bulletin text is in the model input."
+  },
+  "min_wind_mph": {
+    "value": 3,
+    "source_quote": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
+    "label_page": 11,
+    "note": "Excerpt corrected pdftotext artifact 310→3-10; scorer matches excerpt, not raw PDF."
+  },
+  "max_wind_mph": {
+    "value": 10,
+    "source_quote": "Apply when wind speed, measured at boom height, is between 3-10 mph. DO NOT apply if wind speed is below 3 mph or above 10 mph.",
+    "label_page": 11
+  },
+  "no_rain_hours_before": {
+    "value": null,
+    "ambiguous": true,
+    "source_quotes": [
+      "DO NOT apply during rain.",
+      "Avoid making applications when rainfall is expected before the product has sufficient time to dry (minimum 4 hours)."
+    ],
+    "label_page": 11
+  },
+  "downwind_buffer_ft": {
+    "ground": {
+      "value": 240,
+      "source_quote": "applicator must maintain a 240-foot downwind buffer between the last treated row and the nearest downwind field edge",
+      "label_page": 11
+    },
+    "aerial": { "value": null, "note": "Aerial application prohibited on this label." },
+    "airblast": { "value": null, "note": "Label silent on airblast buffer as a single integer." }
+  },
+  "boom_height_max_in": {
+    "value": 24,
+    "source_quote": "Maximum boom height is 24 inches above target pest or crop canopy.",
+    "label_page": 11
+  },
+  "droplet_size_min": {
+    "value": "coarse or coarser",
+    "source_quote": "Apply this product with nozzles calibrated to apply coarse or coarser droplets only",
+    "label_page": 11
+  },
+  "recordkeeping_required": {
+    "value": true,
+    "source_quote": "Records must be created, maintained, and made available to federal and state officials",
+    "label_page": 9
+  },
+  "state_restrictions": {
+    "IL": {
+      "must_find_sentences": [
+        {
+          "id": "il_temp_85",
+          "source_quote": "A pesticide containing dicamba shall not be applied on soybeans if the air temperature at the field at the time of application is over 85 degrees Fahrenheit",
+          "label_page": 36
+        },
+        {
+          "id": "il_june_20",
+          "source_quote": "Application on soybeans of a pesticide containing dicamba shall not be made after June 20 of each year.",
+          "label_page": 36
+        },
+        {
+          "id": "il_fieldwatch",
+          "source_quote": "the applicator shall consult the FieldWatch sensitive crop registry (https://www.fieldwatch.com)",
+          "label_page": 36
+        },
+        {
+          "id": "il_wind_inpc_residential",
+          "source_quote": "Application on soybeans of a pesticide containing dicamba shall not be made if the wind is blowing toward: a. Any Illinois Nature Preserves Commission site that is adjacent to the field of application; or b. An adjacent residential area.",
+          "label_page": 36
+        }
+      ]
+    }
+  },
+  "other_restrictions_must_find": [
+    {
+      "id": "state_website_7_days",
+      "source_quote": "The user must check http://www.stryaxapplicationrequirements.com no more than 7 days before application of this product for additional labeling",
+      "label_page": 8
+    },
+    {
+      "id": "records_count_as_one_point",
+      "source_quote": "ONE point toward the total points required for use of this product",
+      "label_page": 10
+    }
+  ]
+}
